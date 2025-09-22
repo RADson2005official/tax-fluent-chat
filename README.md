@@ -50,6 +50,39 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
+## LLM Tax Knowledge Base
+
+This project includes a comprehensive tax knowledge file that can be accessed by Large Language Models (LLMs) to provide accurate tax assistance:
+
+**File Location**: `/public/llm-tax-knowledge.txt`  
+**Access URL**: `http://localhost:8080/llm-tax-knowledge.txt` (when running locally)
+
+The knowledge base includes:
+- 2024 tax year information
+- Tax brackets and filing status details
+- Credits and deductions (Child Tax Credit, EITC, etc.)
+- Business and self-employment tax guidance
+- Common tax scenarios and calculations
+- Filing requirements and important dates
+
+### For Developers
+
+Use the TypeScript helper functions in `src/data/tax-knowledge.ts`:
+
+```typescript
+import { fetchTaxKnowledge, extractTaxSection } from '@/data/tax-knowledge';
+
+// Fetch the complete tax knowledge
+const taxData = await fetchTaxKnowledge();
+
+// Extract specific sections
+const creditInfo = extractTaxSection(taxData, 'CREDITS AND DEDUCTIONS');
+```
+
+### For LLMs
+
+Access the knowledge base directly via HTTP GET request to `/llm-tax-knowledge.txt` for comprehensive tax information to assist users with tax-related questions.
+
 ## What technologies are used for this project?
 
 This project is built with:
