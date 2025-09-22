@@ -1,0 +1,149 @@
+# Tax Fluent Chat - AI-Powered Conversational Tax Assistant
+
+## Project Overview
+Tax Fluent Chat is an adaptive conversational AI tax filing application built with modern web technologies. The app provides an intelligent chat interface for tax assistance with explainable AI, dynamic UI adaptation, and accessibility-focused user experience.
+
+## Technology Stack
+- **Framework**: React 18.3.1 with TypeScript
+- **Build Tool**: Vite 5.4.19
+- **UI Library**: shadcn/ui (Radix UI components)
+- **Styling**: Tailwind CSS with custom animations
+- **State Management**: React hooks (useState, useMemo)
+- **Routing**: React Router DOM
+- **Meta Tags**: React Helmet Async
+- **Development**: ESLint, TypeScript compilation
+
+## Key Features
+1. **Adaptive Chat Interface**: Three modes - Novice, Expert, Accessibility-First
+2. **Explainable AI (XAI)**: Users can request explanations for AI responses
+3. **Dynamic UI**: Layout and suggestions adapt based on user expertise level
+4. **Accessibility Focus**: ARIA labels, semantic HTML, keyboard navigation
+5. **Tax-Specific Intelligence**: Handles IRS forms, deductions, credits, thresholds
+
+## Architecture & File Structure
+
+### Core Application
+- `src/main.tsx` - Application entry point
+- `src/App.tsx` - Main app component with routing
+- `src/pages/Index.tsx` - Primary chat interface page
+- `src/pages/NotFound.tsx` - 404 error page
+
+### Component Organization
+
+#### `/src/components/chat/`
+- `ChatWindow.tsx` - Main conversation display area
+- `MessageBubble.tsx` - Individual message components with explanation buttons
+- `InputBar.tsx` - User input interface
+
+#### `/src/components/adaptive/`
+- `ModeSwitcher.tsx` - Toggle between Novice/Expert/Accessibility modes
+
+#### `/src/components/xai/` (Explainable AI)
+- `ExplanationPanel.tsx` - Modal dialog showing AI reasoning and attribution
+
+#### `/src/components/inputs/`
+- `IntelligentField.tsx` - Smart form fields with help text
+
+#### `/src/components/shared/`
+- `TransparencyIndicator.tsx` - Shows transparency and confidence metrics
+
+#### `/src/components/dynamic/`
+- `DynamicLayoutContainer.tsx` - Adaptive layout based on user mode
+
+#### `/src/components/ui/`
+- Complete shadcn/ui component library (40+ components)
+- Includes buttons, cards, dialogs, forms, navigation, data display components
+
+### Utilities & Configuration
+- `src/lib/utils.ts` - Utility functions (className merging, etc.)
+- `src/hooks/` - Custom React hooks (toast notifications, mobile detection)
+- `tailwind.config.ts` - Tailwind CSS configuration
+- `vite.config.ts` - Vite build configuration
+
+## Core User Experience Flow
+
+1. **Mode Selection**: Users choose their expertise level (Novice/Expert/Accessibility)
+2. **Chat Interaction**: Type questions about taxes, get AI responses
+3. **Adaptive Suggestions**: Mode-specific quick action suggestions
+4. **Explanation Requests**: Click "Explain" button for AI reasoning
+5. **Dynamic Input Forms**: Quick input fields for income, dependents, state
+
+### Mode-Specific Behavior
+- **Novice**: Simple language, basic tax questions, step-by-step guidance
+- **Expert**: Technical terminology, advanced calculations, power user features  
+- **Accessibility**: Larger text, enhanced screen reader support, simplified navigation
+
+## Key Data Types
+
+### ChatMessage Interface
+```typescript
+type ChatMessage = {
+  id: string;
+  role: "user" | "ai";
+  content: ReactNode;
+  explainable?: boolean;
+};
+```
+
+### Mode Type
+```typescript
+type Mode = "Novice" | "Expert" | "Accessibility";
+```
+
+## Development Commands
+- `npm install` - Install dependencies
+- `npm run dev` - Start development server (port 8080)
+- `npm run build` - Production build
+- `npm run lint` - Code linting
+- `npm run preview` - Preview production build
+
+## Tax-Specific Intelligence Features
+- IRS threshold calculations (2024 tax year)
+- Standard vs. itemized deduction analysis
+- Child Tax Credit (CTC) eligibility
+- Earned Income Tax Credit (EITC) calculations
+- AGI computation from multiple income sources (W2, 1099)
+- State tax considerations
+- Filing status optimization
+
+## Accessibility Features
+- ARIA labels and semantic HTML
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast mode considerations
+- Focus management in modals
+- Alternative text for icons
+
+## AI/LLM Integration Points
+- Message processing and response generation
+- Tax rule explanation and attribution
+- Confidence scoring for recommendations
+- Context-aware suggestion generation
+- Error handling and clarification requests
+
+## Design System
+- Consistent spacing using Tailwind utilities
+- Dark/light theme support via next-themes
+- Custom UI variants (glow effects, animations)
+- Responsive design with mobile-first approach
+- Card-based layout for content organization
+
+## Current State
+The application is functional with:
+- ✅ Basic chat interface working
+- ✅ Mode switching implemented
+- ✅ Explanation panel functional
+- ✅ Responsive design
+- ✅ Accessibility features
+- ✅ Build system configured
+- ⚠️ Mock AI responses (needs real LLM integration)
+- ⚠️ Limited tax calculation logic (needs expansion)
+
+## Future Enhancement Areas
+1. Real LLM API integration (OpenAI, Anthropic, etc.)
+2. Comprehensive tax calculation engine
+3. PDF form generation and prefilling
+4. User authentication and data persistence
+5. Multi-language support
+6. Advanced accessibility features
+7. Integration with tax software APIs
