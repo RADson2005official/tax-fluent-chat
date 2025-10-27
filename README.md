@@ -89,8 +89,10 @@ This project is built with:
 
 - Vite
 - TypeScript
-- React
-- shadcn-ui
+- Vue.js 3
+- Pinia (State Management)
+- Vue Router
+- Radix Vue (UI Components)
 - Tailwind CSS
 
 ## How can I deploy this project?
