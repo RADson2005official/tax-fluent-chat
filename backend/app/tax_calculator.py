@@ -137,7 +137,7 @@ class TaxCalculator:
         self, 
         taxable_income: float, 
         filing_status: FilingStatus
-    ) -> tuple[float, List[Dict[str, float]]]:
+    ) -> tuple[float, List[Dict[str, Any]]]:
         """
         Calculate tax using progressive bracket system
         
