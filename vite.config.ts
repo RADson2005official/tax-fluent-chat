@@ -10,6 +10,8 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     vue(),
+    mode === 'development' &&
+    componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {

@@ -124,4 +124,12 @@ function handleExplain(id: string) {
     'and cross-checked income caps.'
   )
 }
+  <TooltipProvider>
+    <RouterView />
+  </TooltipProvider>
+</template>
+
+<script setup lang="ts">
+import { RouterView } from 'vue-router';
+import { TooltipProvider } from 'radix-vue';
 </script>

@@ -32,3 +32,7 @@ venv/
 *.njsproj
 *.sln
 *.sw?
+
+# Old React components (backup)
+src/components/
+src/pages-backup/
