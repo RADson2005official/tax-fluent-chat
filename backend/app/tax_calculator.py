@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, validator
 from enum import Enum
 
@@ -31,7 +31,7 @@ class TaxResult(BaseModel):
     effective_rate: float
     marginal_rate: float
     standard_deduction: float
-    breakdown: List[Dict[str, float]]
+    breakdown: List[Dict[str, Any]]
 
 class TaxCalculator:
     """
