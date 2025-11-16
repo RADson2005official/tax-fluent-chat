@@ -9,6 +9,21 @@
       )"
     >
       <div class="text-sm leading-relaxed">{{ message.content }}</div>
+
+      <!-- Form Suggestions -->
+      <div
+        v-if="message.formSuggestions && message.formSuggestions.length > 0"
+        class="mt-4 space-y-3"
+      >
+        <TaxFormSuggestion
+          v-for="suggestion in message.formSuggestions"
+          :key="suggestion.id"
+          :suggestion="suggestion"
+          @accept="$emit('formAccept', suggestion)"
+          @dismiss="$emit('formDismiss', $event)"
+        />
+      </div>
+
       <div v-if="message.explainable && !isUser" class="mt-2 flex justify-end">
         <Button size="sm" variant="glow" @click="$emit('explain', message.id)">
           <Lightbulb class="mr-2 h-4 w-4" /> Explain
@@ -23,6 +38,7 @@ import { computed } from 'vue';
 import { cn } from '@/lib/utils';
 import Card from '@/components-vue/ui/Card.vue';
 import Button from '@/components-vue/ui/Button.vue';
+import TaxFormSuggestion, { TaxFormSuggestion as TaxFormSuggestionType } from './TaxFormSuggestion.vue';
 import { Lightbulb } from 'lucide-vue-next';
 
 export interface ChatMessage {
@@ -30,6 +46,7 @@ export interface ChatMessage {
   role: 'user' | 'ai';
   content: string;
   explainable?: boolean;
+  formSuggestions?: TaxFormSuggestionType[];
 }
 
 interface Props {
@@ -40,6 +57,8 @@ const props = defineProps<Props>();
 
 defineEmits<{
   explain: [id: string];
+  formAccept: [suggestion: TaxFormSuggestionType];
+  formDismiss: [id: string];
 }>();
 
 const isUser = computed(() => props.message.role === 'user');

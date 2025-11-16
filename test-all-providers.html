@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Provider Testing - Tax Fluent Chat</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .test-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .provider-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .provider-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+        .provider-card.testing {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .provider-card.success {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        .provider-card.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-badge.unknown { background: #e5e7eb; color: #6b7280; }
+        .status-badge.testing { background: #fef3c7; color: #92400e; }
+        .status-badge.success { background: #d1fae5; color: #065f46; }
+        .status-badge.error { background: #fee2e2; color: #991b1b; }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid transparent;
+        }
+        .log-entry.info { border-color: #3b82f6; }
+        .log-entry.success { border-color: #10b981; }
+        .log-entry.error { border-color: #ef4444; }
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Tax Fluent Chat - AI Provider Testing</h1>
+        <p>Comprehensive testing of all 6 AI providers with 5 attempts each</p>
+    </div>
+
+    <div class="test-container">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn" onclick="testAllProviders()" id="testBtn">
+                🧪 Test All Providers (5 Attempts Each)
+            </button>
+            <button class="btn" onclick="testSingleProvider()" id="singleBtn">
+                🎯 Test Selected Provider
+            </button>
+            <button class="btn" onclick="clearLogs()" style="background: #6b7280;">
+                🗑️ Clear Logs
+            </button>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+        </div>
+
+        <div id="providers"></div>
+
+        <div class="log" id="logContainer"></div>
+    </div>
+
+    <script>
+        const providers = [
+            {
+                id: 'gemini',
+                name: 'Google Gemini 1.5 Flash',
+                model: 'gemini-1.5-flash-latest',
+                apiKey: 'AIzaSyB5oma-7DH9VxKLU-MGFWy1QHf_UugNglE',
+                endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent',
+                free: false
+            },
+            {
+                id: 'qwen',
+                name: 'Qwen 2.5 72B Instruct (FREE)',
+                model: 'qwen/qwen-2.5-72b-instruct:free',
+                apiKey: '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',
+                endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+                free: true
+            },
+            {
+                id: 'glm',
+                name: 'GLM 4.5 Air (FREE)',
+                model: 'zerooneai/glm-4.5-air:free',
+                apiKey: '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',
+                endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+                free: true
+            },
+            {
+                id: 'llama',
+                name: 'Llama 4 Maverick',
+                model: 'meta-llama/llama-4-maverick',
+                apiKey: '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',
+                endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+                free: false
+            }
+        ];
+
+        let selectedProvider = 'gemini';
+
+        function renderProviders() {
+            const container = document.getElementById('providers');
+            container.innerHTML = providers.map(p => `
+                <div class="provider-card" id="card-${p.id}" onclick="selectedProvider='${p.id}'">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="margin: 0 0 5px 0;">${p.name}</h3>
+                            <p style="margin: 0; color: #6b7280; font-size: 13px;">${p.model}</p>
+                            ${p.free ? '<span style="font-size: 11px; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 10px; margin-top: 5px; display: inline-block;">FREE</span>' : ''}
+                        </div>
+                        <span class="status-badge unknown" id="status-${p.id}">Unknown</span>
+                    </div>
+                    <div id="result-${p.id}" style="margin-top: 10px; font-size: 13px; color: #6b7280;"></div>
+                </div>
+            `).join('');
+        }
+
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStatus(id, status, message = '') {
+            const card = document.getElementById(`card-${id}`);
+            const statusBadge = document.getElementById(`status-${id}`);
+            const resultDiv = document.getElementById(`result-${id}`);
+            
+            card.className = `provider-card ${status}`;
+            statusBadge.className = `status-badge ${status}`;
+            statusBadge.textContent = status;
+            
+            if (message) {
+                resultDiv.textContent = message;
+            }
+        }
+
+        async function testProvider(provider, attempt = 1) {
+            addLog(`Testing ${provider.name} (Attempt ${attempt}/5)...`, 'info');
+            updateStatus(provider.id, 'testing', `Testing attempt ${attempt}...`);
+            
+            const startTime = Date.now();
+            
+            try {
+                let response;
+                
+                if (provider.id === 'gemini') {
+                    response = await fetch(`${provider.endpoint}?key=${provider.apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                role: 'user',
+                                parts: [{ text: 'Say "Hello! I am working correctly!" in one sentence.' }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 100
+                            }
+                        })
+                    });
+                } else {
+                    response = await fetch(provider.endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${provider.apiKey}`,
+                            'HTTP-Referer': 'https://tax-fluent-chat.app'
+                        },
+                        body: JSON.stringify({
+                            model: provider.model,
+                            messages: [
+                                { role: 'user', content: 'Say "Hello! I am working correctly!" in one sentence.' }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 100
+                        })
+                    });
+                }
+
+                const responseTime = Date.now() - startTime;
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error?.message || response.statusText);
+                }
+
+                const data = await response.json();
+                let content = '';
+                
+                if (provider.id === 'gemini') {
+                    content = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No content';
+                } else {
+                    content = data.choices?.[0]?.message?.content || 'No content';
+                }
+
+                updateStatus(provider.id, 'success', `✅ ${responseTime}ms - ${content.substring(0, 50)}...`);
+                addLog(`✅ ${provider.name} SUCCESS (${responseTime}ms): ${content.substring(0, 80)}`, 'success');
+                
+                return { success: true, responseTime, content };
+            } catch (error) {
+                const responseTime = Date.now() - startTime;
+                const errorMsg = error.message || 'Unknown error';
+                
+                updateStatus(provider.id, 'error', `❌ ${errorMsg.substring(0, 100)}`);
+                addLog(`❌ ${provider.name} FAILED (${responseTime}ms): ${errorMsg}`, 'error');
+                
+                return { success: false, responseTime, error: errorMsg };
+            }
+        }
+
+        async function testAllProviders() {
+            const testBtn = document.getElementById('testBtn');
+            const progressBar = document.getElementById('progressBar');
+            
+            testBtn.disabled = true;
+            addLog('🚀 Starting comprehensive provider testing...', 'info');
+            addLog('📋 Testing 4 providers × 5 attempts = 20 total tests', 'info');
+            
+            const totalTests = providers.length * 5;
+            let completedTests = 0;
+            
+            for (let attempt = 1; attempt <= 5; attempt++) {
+                addLog(`\n═══ ATTEMPT ${attempt}/5 ═══`, 'info');
+                
+                for (const provider of providers) {
+                    await testProvider(provider, attempt);
+                    completedTests++;
+                    progressBar.style.width = `${(completedTests / totalTests) * 100}%`;
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+            
+            addLog('\n✨ Testing complete! Check results above.', 'success');
+            testBtn.disabled = false;
+            progressBar.style.width = '100%';
+        }
+
+        async function testSingleProvider() {
+            const provider = providers.find(p => p.id === selectedProvider);
+            if (!provider) return;
+            
+            const singleBtn = document.getElementById('singleBtn');
+            singleBtn.disabled = true;
+            
+            await testProvider(provider, 1);
+            
+            singleBtn.disabled = false;
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            addLog('Logs cleared', 'info');
+        }
+
+        // Initialize
+        renderProviders();
+        addLog('🎯 Provider testing interface initialized', 'info');
+        addLog('💡 Click "Test All Providers" to run comprehensive testing', 'info');
+    </script>
+</body>
+</html>

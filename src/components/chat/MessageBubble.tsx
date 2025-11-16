@@ -3,12 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Lightbulb } from "lucide-react";
 import { ReactNode } from "react";
+import TaxFormSuggestion, { TaxFormSuggestion as TaxFormSuggestionType } from "./TaxFormSuggestion";
 
 export type ChatMessage = {
   id: string;
   role: "user" | "ai";
   content: ReactNode;
   explainable?: boolean;
+  formSuggestions?: TaxFormSuggestionType[];
+  onFormAccept?: (suggestion: TaxFormSuggestionType) => void;
+  onFormDismiss?: (id: string) => void;
 };
 
 interface MessageBubbleProps {
@@ -29,6 +33,21 @@ const MessageBubble = ({ message, onExplain }: MessageBubbleProps) => {
         )}
       >
         <div className="text-sm leading-relaxed">{message.content}</div>
+        
+        {/* Form Suggestions */}
+        {message.formSuggestions && message.formSuggestions.length > 0 && (
+          <div className="mt-4 space-y-3">
+            {message.formSuggestions.map((suggestion) => (
+              <TaxFormSuggestion
+                key={suggestion.id}
+                suggestion={suggestion}
+                onAccept={message.onFormAccept || (() => {})}
+                onDismiss={message.onFormDismiss || (() => {})}
+              />
+            ))}
+          </div>
+        )}
+        
         {message.explainable && !isUser && (
           <div className="mt-2 flex justify-end">
             <Button size="sm" variant="glow" onClick={() => onExplain?.(message.id)}>

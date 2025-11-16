@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { useAgentStore } from './agentStore';
+import type { TaxFormSuggestion } from '@/agents/types';
 
 export type Mode = "Novice" | "Expert" | "Accessibility";
 
@@ -8,6 +10,9 @@ export interface ChatMessage {
   role: "user" | "ai";
   content: string;
   explainable?: boolean;
+  formSuggestions?: TaxFormSuggestion[];
+  onFormAccept?: (suggestion: TaxFormSuggestion) => void;
+  onFormDismiss?: (id: string) => void;
 }
 
 export const useChatStore = defineStore('chat', () => {
@@ -66,13 +71,32 @@ export const useChatStore = defineStore('chat', () => {
       content: messageText 
     });
 
-    // Add AI response
-    addMessage({
-      id: id + "a",
-      role: "ai",
-      content: "Thanks! Here's a quick take. You may benefit from the standard deduction. Do you want me to check credit eligibility?",
-      explainable: true,
-    });
+    // Use AI Agent System for response
+    const agentStore = useAgentStore();
+    
+    agentStore.sendMessage(messageText)
+      .then((response) => {
+        // Add AI response from agent
+        addMessage({
+          id: id + "a",
+          role: "ai",
+          content: response.message,
+          explainable: true,
+          formSuggestions: response.formSuggestions,
+          onFormAccept: (suggestion) => handleFormAccept(suggestion),
+          onFormDismiss: (id) => handleFormDismiss(id)
+        });
+      })
+      .catch((error) => {
+        console.error('Error from AI Agent:', error);
+        // Fallback response
+        addMessage({
+          id: id + "a",
+          role: "ai",
+          content: "I apologize, but I'm having trouble processing your request. Please try again.",
+          explainable: false,
+        });
+      });
   }
 
   function requestExplanation(messageId: string) {
@@ -83,6 +107,20 @@ export const useChatStore = defineStore('chat', () => {
 
   function setExplanationOpen(isOpen: boolean) {
     explanationOpen.value = isOpen;
+  }
+
+  function handleFormAccept(suggestion: TaxFormSuggestion) {
+    // TODO: Open form filling interface
+    console.log('Form accepted:', suggestion);
+    // For now, just show a toast or notification
+  }
+
+  function handleFormDismiss(id: string) {
+    // Remove the suggestion from messages
+    messages.value = messages.value.map(msg => ({
+      ...msg,
+      formSuggestions: msg.formSuggestions?.filter(s => s.id !== id)
+    }));
   }
 
   return {
