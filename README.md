@@ -346,10 +346,9 @@ Educational purposes. See LICENSE file.
 
 ---
 
-## 📞 Contact
 
-- **GitHub**: [@RADson2005official](https://github.com/RADson2005official)
-- **Repository**: [tax-fluent-chat](https://github.com/RADson2005official/tax-fluent-chat)
+
+
 
 ---
 
