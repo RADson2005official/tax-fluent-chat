@@ -1,0 +1,30 @@
+# Phase 1 Dependencies - LangGraph, GraphRAG, Rust
+
+# LangGraph for cyclic agent orchestration
+langgraph>=0.2.0
+langgraph-checkpoint-postgres>=1.0.0
+
+# LlamaIndex for GraphRAG
+llama-index>=0.12.0
+llama-index-graph-stores-neo4j>=0.3.0
+llama-index-vector-stores-postgres>=0.3.0
+llama-index-embeddings-openai>=0.3.0
+
+# Neo4j driver
+neo4j>=5.15.0
+
+# PostgreSQL with vector support
+psycopg2-binary>=2.9.9
+pgvector>=0.2.4
+
+# Rust bindings (optional - will be built via maturin)
+# maturin>=1.4.0  # Uncomment when Rust engine is ready
+
+# Property-based testing
+hypothesis>=6.100.0
+
+# Existing dependencies (keep intact)
+fastapi>=0.104.0
+pydantic>=2.5.0
+uvicorn[standard]>=0.24.0
+python-dotenv>=1.0.0

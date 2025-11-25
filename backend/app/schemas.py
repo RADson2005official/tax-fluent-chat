@@ -153,6 +153,15 @@ class DependentCreate(DependentBase):
     months_lived_with_taxpayer: int = 12
 
 
+class DependentUpdate(BaseModel):
+    """Schema for updating a dependent."""
+    full_name: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
+    relationship: Optional[str] = None
+    ssn: Optional[str] = None
+    months_lived_with_taxpayer: Optional[int] = None
+
+
 class Dependent(DependentBase):
     """Schema for dependent response (SSN excluded for security)."""
     id: int
@@ -187,6 +196,20 @@ class W2FormCreate(W2FormBase):
     box_13_checkboxes: Optional[Dict[str, bool]] = {}
 
 
+class W2FormUpdate(BaseModel):
+    """Schema for updating a W-2."""
+    employer_name: Optional[str] = None
+    employer_ein: Optional[str] = None
+    box_1_wages: Optional[float] = None
+    box_2_federal_tax_withheld: Optional[float] = None
+    box_3_social_security_wages: Optional[float] = None
+    box_4_social_security_tax_withheld: Optional[float] = None
+    box_5_medicare_wages: Optional[float] = None
+    box_6_medicare_tax_withheld: Optional[float] = None
+    box_12_codes: Optional[List[Dict[str, Any]]] = None
+    box_13_checkboxes: Optional[Dict[str, bool]] = None
+
+
 class W2Form(W2FormBase):
     """Schema for W-2 response."""
     id: int
@@ -217,6 +240,15 @@ class Form1099Create(Form1099Base):
     """Schema for creating a 1099."""
     form_data: Dict[str, Any] = {}
     total_amount: float = 0.0
+
+
+class Form1099Update(BaseModel):
+    """Schema for updating a 1099."""
+    form_type: Optional[str] = None
+    payer_name: Optional[str] = None
+    payer_ein: Optional[str] = None
+    form_data: Optional[Dict[str, Any]] = None
+    total_amount: Optional[float] = None
 
 
 class Form1099(Form1099Base):

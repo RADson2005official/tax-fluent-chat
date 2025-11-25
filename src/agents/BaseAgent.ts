@@ -26,7 +26,7 @@ export abstract class BaseAgent {
         conversationHistory: [],
         userProfile: {
           preferences: {
-            mode: 'Novice',
+            mode: 'novice',
             language: 'en',
             complexity: 'simple'
           }

@@ -169,7 +169,7 @@ const providers = ref<Provider[]>([
   {
     id: 'gemini',
     name: 'Google Gemini',
-    model: 'gemini-1.5-flash-latest',
+    model: 'gemini-flash-latest',
     free: false,
     apiKey: 'AIzaSyB5oma-7DH9VxKLU-MGFWy1QHf_UugNglE',
     status: 'unknown'

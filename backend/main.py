@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import time
 
 from app.database import engine, Base
-from app.api import auth, users, tax_forms
+from app.api import auth, users, tax_forms, sdui, ws, documents, filing
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -22,6 +22,18 @@ app = FastAPI(
 )
 
 # ============================================================================
+# API Routers
+# ============================================================================
+
+app.include_router(auth.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
+app.include_router(tax_forms.router, prefix="/api")
+app.include_router(sdui.router)
+app.include_router(ws.router)
+app.include_router(documents.router, prefix="/api")
+app.include_router(filing.router, prefix="/api")
+
+# ============================================================================
 # CORS Middleware
 # ============================================================================
 
@@ -31,7 +43,9 @@ app.add_middleware(
         "http://localhost:5173",  # Vite dev server
         "http://localhost:3000",  # Alternative dev port
         "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -91,21 +105,6 @@ async def general_exception_handler(request: Request, exc: Exception):
             "message": str(exc)
         }
     )
-
-
-# ============================================================================
-# API Routers
-# ============================================================================
-
-app.include_router(auth.router, prefix="/api")
-app.include_router(users.router, prefix="/api")
-app.include_router(tax_forms.router, prefix="/api")
-
-
-# ============================================================================
-# Root and Health Check Endpoints
-# ============================================================================
-
 @app.get("/")
 async def root():
     """Root endpoint - API information."""
@@ -155,15 +154,15 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     """Run on application startup."""
-    print("🚀 Tax Filing System API starting up...")
-    print("📚 API documentation available at: http://localhost:8000/api/docs")
-    print("🏥 Health check available at: http://localhost:8000/api/health")
+    print("Tax Filing System API starting up...")
+    print("API documentation available at: http://localhost:8000/api/docs")
+    print("Health check available at: http://localhost:8000/api/health")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Run on application shutdown."""
-    print("👋 Tax Filing System API shutting down...")
+    print("Tax Filing System API shutting down...")
 
 
 if __name__ == "__main__":

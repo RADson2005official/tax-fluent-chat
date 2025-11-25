@@ -24,7 +24,7 @@ export async function testTaxCalculationWithMultipleProviders() {
   };
 
   const providers = [
-    { name: 'Gemini Pro', provider: 'gemini' as const, model: 'gemini-pro' },
+    { name: 'Gemini Flash Latest', provider: 'gemini' as const, model: 'gemini-flash-latest' },
     { name: 'Qwen 2.5 72B', provider: 'qwen' as const, model: 'qwen/qwen-2.5-72b-instruct:free' },
     { name: 'GLM 4.5 Air', provider: 'glm' as const, model: 'zerooneai/glm-4.5-air:free' },
     { name: 'Llama 4 Maverick', provider: 'llama' as const, model: 'meta-llama/llama-4-maverick' }
@@ -32,10 +32,10 @@ export async function testTaxCalculationWithMultipleProviders() {
 
   for (const providerConfig of providers) {
     console.log(`\n📊 Testing with ${providerConfig.name}...`);
-    
+
     try {
       const agent = new TaxCalculatorAgent();
-      
+
       // Override the LLM provider for this test
       (agent as any).llmProvider = createLLMProvider({
         provider: providerConfig.provider,
@@ -51,7 +51,7 @@ export async function testTaxCalculationWithMultipleProviders() {
       console.log(`✅ ${providerConfig.name} - Success (${elapsed}ms)`);
       console.log(`   Message: ${response.message.substring(0, 100)}...`);
       console.log(`   Confidence: ${response.confidence || 'N/A'}`);
-      
+
     } catch (error) {
       console.log(`❌ ${providerConfig.name} - Failed`);
       console.log(`   Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -97,10 +97,10 @@ export async function testOrchestratorWithMultipleProviders() {
 
     try {
       const orchestrator = new OrchestratorAgent();
-      
+
       // Override provider for orchestrator
       const providerMap: Record<string, { provider: any; model: string }> = {
-        gemini: { provider: 'gemini', model: 'gemini-pro' },
+        gemini: { provider: 'gemini', model: 'gemini-flash-latest' },
         qwen: { provider: 'qwen', model: 'qwen/qwen-2.5-72b-instruct:free' },
         llama: { provider: 'llama', model: 'meta-llama/llama-4-maverick' }
       };
@@ -185,10 +185,10 @@ export async function testCostOptimizedAgents() {
 
   for (const testCase of testCases) {
     console.log(`\n🤖 ${testCase.agent} using ${testCase.provider.toUpperCase()}`);
-    
+
     const cost = costPerProvider[testCase.provider] || 0;
     totalCost += cost;
-    
+
     console.log(`   Query: "${testCase.query}"`);
     console.log(`   Cost: $${cost.toFixed(4)} (${cost === 0 ? 'FREE' : 'Paid'})`);
     console.log(`   Status: ✅ Configured`);

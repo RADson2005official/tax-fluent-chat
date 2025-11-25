@@ -237,6 +237,42 @@ def get_form_dependents(db: Session, form_id: int) -> List[models.Dependent]:
     return db.query(models.Dependent).filter(models.Dependent.form_id == form_id).all()
 
 
+def get_dependent(db: Session, dependent_id: int) -> Optional[models.Dependent]:
+    """Get dependent by ID."""
+    return db.query(models.Dependent).filter(models.Dependent.id == dependent_id).first()
+
+
+def update_dependent(db: Session, dependent_id: int, dependent_update: schemas.DependentUpdate) -> Optional[models.Dependent]:
+    """Update dependent information."""
+    db_dependent = get_dependent(db, dependent_id)
+    if not db_dependent:
+        return None
+    
+    update_data = dependent_update.dict(exclude_unset=True)
+    
+    # Handle SSN encryption if it's being updated
+    if 'ssn' in update_data and update_data['ssn']:
+        update_data['ssn_encrypted'] = encrypt_data(update_data.pop('ssn'))
+        
+    for field, value in update_data.items():
+        setattr(db_dependent, field, value)
+    
+    db.commit()
+    db.refresh(db_dependent)
+    return db_dependent
+
+
+def delete_dependent(db: Session, dependent_id: int) -> bool:
+    """Delete dependent."""
+    db_dependent = get_dependent(db, dependent_id)
+    if not db_dependent:
+        return False
+    
+    db.delete(db_dependent)
+    db.commit()
+    return True
+
+
 # ============================================================================
 # W-2 Form CRUD Operations
 # ============================================================================
@@ -268,6 +304,37 @@ def get_form_w2s(db: Session, form_id: int) -> List[models.W2Form]:
     return db.query(models.W2Form).filter(models.W2Form.form_id == form_id).all()
 
 
+def get_w2_form(db: Session, w2_id: int) -> Optional[models.W2Form]:
+    """Get W-2 form by ID."""
+    return db.query(models.W2Form).filter(models.W2Form.id == w2_id).first()
+
+
+def update_w2_form(db: Session, w2_id: int, w2_update: schemas.W2FormUpdate) -> Optional[models.W2Form]:
+    """Update W-2 form."""
+    db_w2 = get_w2_form(db, w2_id)
+    if not db_w2:
+        return None
+    
+    update_data = w2_update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_w2, field, value)
+    
+    db.commit()
+    db.refresh(db_w2)
+    return db_w2
+
+
+def delete_w2_form(db: Session, w2_id: int) -> bool:
+    """Delete W-2 form."""
+    db_w2 = get_w2_form(db, w2_id)
+    if not db_w2:
+        return False
+    
+    db.delete(db_w2)
+    db.commit()
+    return True
+
+
 # ============================================================================
 # 1099 Form CRUD Operations
 # ============================================================================
@@ -292,6 +359,37 @@ def create_1099_form(db: Session, form_id: int, form_1099: schemas.Form1099Creat
 def get_form_1099s(db: Session, form_id: int) -> List[models.Form1099]:
     """Get all 1099 forms for a tax form."""
     return db.query(models.Form1099).filter(models.Form1099.form_id == form_id).all()
+
+
+def get_1099_form(db: Session, form_1099_id: int) -> Optional[models.Form1099]:
+    """Get 1099 form by ID."""
+    return db.query(models.Form1099).filter(models.Form1099.id == form_1099_id).first()
+
+
+def update_1099_form(db: Session, form_1099_id: int, form_1099_update: schemas.Form1099Update) -> Optional[models.Form1099]:
+    """Update 1099 form."""
+    db_1099 = get_1099_form(db, form_1099_id)
+    if not db_1099:
+        return None
+    
+    update_data = form_1099_update.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_1099, field, value)
+    
+    db.commit()
+    db.refresh(db_1099)
+    return db_1099
+
+
+def delete_1099_form(db: Session, form_1099_id: int) -> bool:
+    """Delete 1099 form."""
+    db_1099 = get_1099_form(db, form_1099_id)
+    if not db_1099:
+        return False
+    
+    db.delete(db_1099)
+    db.commit()
+    return True
 
 
 # ============================================================================

@@ -2,9 +2,9 @@
   <div class="flex items-center gap-3">
     <Label for="mode">Mode</Label>
     <Select v-model="selectedMode" placeholder="Select mode">
-      <SelectItem value="Novice">Novice</SelectItem>
-      <SelectItem value="Expert">Expert</SelectItem>
-      <SelectItem value="Accessibility">Accessibility-First</SelectItem>
+      <SelectItem value="novice">Novice (Guided)</SelectItem>
+      <SelectItem value="intermediate">Intermediate (Semi-Auto)</SelectItem>
+      <SelectItem value="expert">Expert (Fully Auto)</SelectItem>
     </Select>
   </div>
 </template>
@@ -15,7 +15,7 @@ import Select from '@/components-vue/ui/Select.vue';
 import SelectItem from '@/components-vue/ui/SelectItem.vue';
 import Label from '@/components-vue/ui/Label.vue';
 
-export type Mode = 'Novice' | 'Expert' | 'Accessibility';
+export type Mode = 'novice' | 'intermediate' | 'expert';
 
 interface Props {
   mode: Mode;

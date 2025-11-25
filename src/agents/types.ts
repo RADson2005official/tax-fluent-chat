@@ -1,13 +1,16 @@
 // Core Types for AI Agent System
 
-export type AgentRole = 
+export type UserMode = 'novice' | 'intermediate' | 'expert';
+
+export type AgentRole =
   | 'orchestrator'
-  | 'tax_calculator' 
+  | 'tax_calculator'
   | 'document_processor'
   | 'compliance_checker'
   | 'tax_advisor'
   | 'form_filler'
-  | 'optimization_analyzer';
+  | 'optimization_analyzer'
+  | 'user_profiling';
 
 export type AgentStatus = 'idle' | 'thinking' | 'working' | 'waiting' | 'error' | 'completed';
 
@@ -73,7 +76,7 @@ export interface UserProfile {
   state?: string;
   previousFilings?: any[];
   preferences: {
-    mode: 'Novice' | 'Expert' | 'Accessibility';
+    mode: UserMode;
     language: string;
     complexity: 'simple' | 'detailed' | 'expert';
   };

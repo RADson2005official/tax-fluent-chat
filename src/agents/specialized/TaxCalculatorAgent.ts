@@ -10,7 +10,7 @@ export class TaxCalculatorAgent extends BaseAgent {
 
   constructor(providerConfig?: LLMConfig) {
     super(TAX_CALCULATOR_CONFIG);
-    
+
     // Register tools
     const tools = getToolsByAgent('tax_calculator');
     tools.forEach(tool => this.registerTool(tool));
@@ -18,7 +18,7 @@ export class TaxCalculatorAgent extends BaseAgent {
     // Initialize LLM provider - Use provided config or default to Gemini
     const defaultConfig: LLMConfig = {
       provider: 'gemini',
-      model: 'gemini-1.5-flash-latest',
+      model: 'gemini-flash-latest',
       temperature: this.config.temperature,
       maxTokens: this.config.maxTokens
     };
@@ -53,7 +53,7 @@ export class TaxCalculatorAgent extends BaseAgent {
 
   async generateResponse(message: AgentMessage): Promise<AgentResponse> {
     this.setStatus('thinking');
-    
+
     try {
       // Add message to history
       this.addToHistory(message);
@@ -104,7 +104,7 @@ export class TaxCalculatorAgent extends BaseAgent {
 
         return this.createResponse(
           true,
-          `AGI computed. Total income: $${totalIncome.toLocaleString()} − Above-the-line: $${(aboveLine||0).toLocaleString()} → AGI: $${agiResult.agi.toLocaleString()}.`,
+          `AGI computed. Total income: $${totalIncome.toLocaleString()} − Above-the-line: $${(aboveLine || 0).toLocaleString()} → AGI: $${agiResult.agi.toLocaleString()}.`,
           agiResult,
           ['Computed AGI from W-2 and 1099 inputs'],
           0.99
@@ -333,7 +333,7 @@ export class TaxCalculatorAgent extends BaseAgent {
 
   private buildContextMessage(): string {
     const { taxContext, userProfile } = this.state.memory;
-    
+
     let context = '## Current Tax Context:\n';
     context += `Tax Year: ${taxContext.taxYear}\n`;
     context += `User Expertise: ${userProfile.preferences.mode}\n\n`;

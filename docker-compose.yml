@@ -1,8 +1,9 @@
 version: '3.8'
 
 services:
+  # Existing PostgreSQL - upgraded to pgvector for Phase 1 GraphRAG
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg16
     container_name: tax-agent-db
     environment:
       POSTGRES_USER: taxagent
@@ -34,8 +35,30 @@ services:
     networks:
       - tax-agent-network
 
+  # Neo4j Graph Database for Phase 1 GraphRAG (Knowledge Graph)
+  neo4j:
+    image: neo4j:5.15
+    container_name: tax-neo4j
+    ports:
+      - "7474:7474"  # Browser UI
+      - "7687:7687"  # Bolt protocol
+    environment:
+      NEO4J_AUTH: neo4j/taxpassword123
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+      NEO4J_dbms_memory_heap_max__size: 2G
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - tax-agent-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  neo4j_logs:
     driver: local
 
 networks:

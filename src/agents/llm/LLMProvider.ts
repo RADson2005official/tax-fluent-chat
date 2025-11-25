@@ -28,6 +28,28 @@ export interface LLMConfig {
   maxTokens?: number;
 }
 
+function getEnvVar(key: string): string | undefined {
+  try {
+    // Try Vite env first
+    if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env[key]) {
+      return (import.meta as any).env[key];
+    }
+  } catch (e) {
+    // Ignore error
+  }
+
+  try {
+    // Try Node process.env
+    if (typeof process !== 'undefined' && process.env && process.env[key]) {
+      return process.env[key];
+    }
+  } catch (e) {
+    // Ignore error
+  }
+
+  return undefined;
+}
+
 export abstract class LLMProvider {
   protected config: LLMConfig;
 
@@ -65,8 +87,8 @@ export class OpenAIProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_OPENAI_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_OPENAI_API_KEY');
+
     if (!apiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -112,8 +134,8 @@ export class OpenAIProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_OPENAI_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_OPENAI_API_KEY');
+
     if (!apiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -188,8 +210,8 @@ export class AnthropicProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_ANTHROPIC_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_ANTHROPIC_API_KEY');
+
     if (!apiKey) {
       throw new Error('Anthropic API key not configured');
     }
@@ -251,15 +273,15 @@ export class GeminiProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_GEMINI_API_KEY');
+
     if (!apiKey) {
       throw new Error('Gemini API key not configured');
     }
 
     // Use gemini-1.5-flash-latest which is the correct model name
-    const model = this.config.model || 'gemini-1.5-flash-latest';
-    
+    const model = this.config.model || 'gemini-flash-latest';
+
     // Prepare messages in Gemini format
     const contents = messages
       .filter(m => m.role !== 'system')
@@ -322,14 +344,14 @@ export class GeminiProvider extends LLMProvider {
       maxTokens?: number;
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_GEMINI_API_KEY');
+
     if (!apiKey) {
       throw new Error('Gemini API key not configured');
     }
 
-    const model = this.config.model || 'gemini-1.5-flash-latest';
-    
+    const model = this.config.model || 'gemini-flash-latest';
+
     const contents = messages
       .filter(m => m.role !== 'system')
       .map(msg => ({
@@ -407,8 +429,8 @@ export class QwenProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_QWEN_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_QWEN_API_KEY');
+
     if (!apiKey) {
       throw new Error('Qwen API key not configured');
     }
@@ -457,8 +479,8 @@ export class QwenProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_QWEN_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_QWEN_API_KEY');
+
     if (!apiKey) {
       throw new Error('Qwen API key not configured');
     }
@@ -536,8 +558,8 @@ export class GLMProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_GLM_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_GLM_API_KEY');
+
     if (!apiKey) {
       throw new Error('GLM API key not configured');
     }
@@ -586,8 +608,8 @@ export class GLMProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_GLM_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_GLM_API_KEY');
+
     if (!apiKey) {
       throw new Error('GLM API key not configured');
     }
@@ -665,8 +687,8 @@ export class KATProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_KAT_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_KAT_API_KEY');
+
     if (!apiKey) {
       throw new Error('KAT API key not configured');
     }
@@ -715,8 +737,8 @@ export class KATProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_KAT_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_KAT_API_KEY');
+
     if (!apiKey) {
       throw new Error('KAT API key not configured');
     }
@@ -794,8 +816,8 @@ export class LlamaProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_LLAMA_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_LLAMA_API_KEY');
+
     if (!apiKey) {
       throw new Error('Llama API key not configured');
     }
@@ -844,8 +866,8 @@ export class LlamaProvider extends LLMProvider {
       tools?: any[];
     }
   ): Promise<LLMResponse> {
-    const apiKey = this.config.apiKey || (import.meta as any).env?.VITE_LLAMA_API_KEY;
-    
+    const apiKey = this.config.apiKey || getEnvVar('VITE_LLAMA_API_KEY');
+
     if (!apiKey) {
       throw new Error('Llama API key not configured');
     }

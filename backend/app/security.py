@@ -25,7 +25,7 @@ ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key().decode())
 # Password Hashing
 # ============================================================================
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def _truncate_for_bcrypt(password: str) -> str:

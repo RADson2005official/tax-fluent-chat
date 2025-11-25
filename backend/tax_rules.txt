@@ -1,0 +1,29 @@
+Tax Rules for FY 2024-25 (AY 2025-26)
+
+1. Income Tax Slabs (New Regime):
+   - Up to ₹3,00,000: Nil
+   - ₹3,00,001 to ₹7,00,000: 5%
+   - ₹7,00,001 to ₹10,00,000: 10%
+   - ₹10,00,001 to ₹12,00,000: 15%
+   - ₹12,00,001 to ₹15,00,000: 20%
+   - Above ₹15,00,000: 30%
+
+2. Standard Deduction:
+   - Standard deduction for salaried employees has been increased to ₹75,000 under the New Tax Regime.
+
+3. Section 80C (Old Regime Only):
+   - Deduction up to ₹1,50,000 for investments in PPF, EPF, LIC, ELSS, etc.
+
+4. Section 80D (Old Regime Only):
+   - Deduction for health insurance premiums:
+     - Self & Family: Up to ₹25,000 (₹50,000 if senior citizen)
+     - Parents: Up to ₹25,000 (₹50,000 if senior citizen)
+
+5. Rebate under Section 87A:
+   - New Regime: Tax rebate up to ₹25,000 for income up to ₹7,00,000.
+   - Old Regime: Tax rebate up to ₹12,500 for income up to ₹5,00,000.
+
+6. Surcharge:
+   - 10% for income above ₹50 Lakhs
+   - 15% for income above ₹1 Crore
+   - 25% for income above ₹2 Crores (New Regime capped at 25%)

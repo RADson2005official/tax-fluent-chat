@@ -366,3 +366,249 @@ async def list_compliance_checks(
         )
     
     return crud.get_form_compliance_checks(db, form_id)
+
+
+# ============================================================================
+# Dependent Update/Delete Endpoints
+# ============================================================================
+
+@router.put("/{form_id}/dependents/{dependent_id}", response_model=schemas.Dependent)
+async def update_dependent(
+    form_id: int,
+    dependent_id: int,
+    dependent_update: schemas.DependentUpdate,
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Update dependent information."""
+    # Verify form ownership
+    form = crud.get_tax_form(db, form_id)
+    if not form or form.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to modify this tax form"
+        )
+    
+    # Verify dependent belongs to form
+    dependent = crud.get_dependent(db, dependent_id)
+    if not dependent or dependent.form_id != form_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Dependent not found"
+        )
+        
+    updated_dependent = crud.update_dependent(db, dependent_id, dependent_update)
+    
+    # Log update
+    crud.create_audit_log(
+        db=db,
+        user_id=current_user.id,
+        action="update_dependent",
+        resource_type="dependent",
+        resource_id=dependent_id,
+        details=dependent_update.dict(exclude_unset=True)
+    )
+    
+    return updated_dependent
+
+
+@router.delete("/{form_id}/dependents/{dependent_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_dependent(
+    form_id: int,
+    dependent_id: int,
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Delete dependent."""
+    # Verify form ownership
+    form = crud.get_tax_form(db, form_id)
+    if not form or form.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to modify this tax form"
+        )
+    
+    # Verify dependent belongs to form
+    dependent = crud.get_dependent(db, dependent_id)
+    if not dependent or dependent.form_id != form_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Dependent not found"
+        )
+        
+    crud.delete_dependent(db, dependent_id)
+    
+    # Log deletion
+    crud.create_audit_log(
+        db=db,
+        user_id=current_user.id,
+        action="delete_dependent",
+        resource_type="dependent",
+        resource_id=dependent_id
+    )
+    
+    return None
+
+
+# ============================================================================
+# W-2 Update/Delete Endpoints
+# ============================================================================
+
+@router.put("/{form_id}/w2s/{w2_id}", response_model=schemas.W2Form)
+async def update_w2_form(
+    form_id: int,
+    w2_id: int,
+    w2_update: schemas.W2FormUpdate,
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Update W-2 form."""
+    # Verify form ownership
+    form = crud.get_tax_form(db, form_id)
+    if not form or form.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to modify this tax form"
+        )
+    
+    # Verify W-2 belongs to form
+    w2 = crud.get_w2_form(db, w2_id)
+    if not w2 or w2.form_id != form_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="W-2 form not found"
+        )
+        
+    updated_w2 = crud.update_w2_form(db, w2_id, w2_update)
+    
+    # Log update
+    crud.create_audit_log(
+        db=db,
+        user_id=current_user.id,
+        action="update_w2",
+        resource_type="w2_form",
+        resource_id=w2_id,
+        details={"form_id": form_id}
+    )
+    
+    return updated_w2
+
+
+@router.delete("/{form_id}/w2s/{w2_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_w2_form(
+    form_id: int,
+    w2_id: int,
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Delete W-2 form."""
+    # Verify form ownership
+    form = crud.get_tax_form(db, form_id)
+    if not form or form.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to modify this tax form"
+        )
+    
+    # Verify W-2 belongs to form
+    w2 = crud.get_w2_form(db, w2_id)
+    if not w2 or w2.form_id != form_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="W-2 form not found"
+        )
+        
+    crud.delete_w2_form(db, w2_id)
+    
+    # Log deletion
+    crud.create_audit_log(
+        db=db,
+        user_id=current_user.id,
+        action="delete_w2",
+        resource_type="w2_form",
+        resource_id=w2_id
+    )
+    
+    return None
+
+
+# ============================================================================
+# 1099 Update/Delete Endpoints
+# ============================================================================
+
+@router.put("/{form_id}/1099s/{form_1099_id}", response_model=schemas.Form1099)
+async def update_1099_form(
+    form_id: int,
+    form_1099_id: int,
+    form_1099_update: schemas.Form1099Update,
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Update 1099 form."""
+    # Verify form ownership
+    form = crud.get_tax_form(db, form_id)
+    if not form or form.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to modify this tax form"
+        )
+    
+    # Verify 1099 belongs to form
+    form_1099 = crud.get_1099_form(db, form_1099_id)
+    if not form_1099 or form_1099.form_id != form_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="1099 form not found"
+        )
+        
+    updated_1099 = crud.update_1099_form(db, form_1099_id, form_1099_update)
+    
+    # Log update
+    crud.create_audit_log(
+        db=db,
+        user_id=current_user.id,
+        action="update_1099",
+        resource_type="form_1099",
+        resource_id=form_1099_id,
+        details={"form_id": form_id}
+    )
+    
+    return updated_1099
+
+
+@router.delete("/{form_id}/1099s/{form_1099_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_1099_form(
+    form_id: int,
+    form_1099_id: int,
+    current_user = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Delete 1099 form."""
+    # Verify form ownership
+    form = crud.get_tax_form(db, form_id)
+    if not form or form.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to modify this tax form"
+        )
+    
+    # Verify 1099 belongs to form
+    form_1099 = crud.get_1099_form(db, form_1099_id)
+    if not form_1099 or form_1099.form_id != form_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="1099 form not found"
+        )
+        
+    crud.delete_1099_form(db, form_1099_id)
+    
+    # Log deletion
+    crud.create_audit_log(
+        db=db,
+        user_id=current_user.id,
+        action="delete_1099",
+        resource_type="form_1099",
+        resource_id=form_1099_id
+    )
+    
+    return None

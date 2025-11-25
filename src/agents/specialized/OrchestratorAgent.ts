@@ -1,7 +1,9 @@
 import { BaseAgent } from '../BaseAgent';
 import { ORCHESTRATOR_CONFIG } from '../configs';
-import type { AgentTask, AgentResponse, AgentMessage, AgentRole, TaxFormSuggestion } from '../types';
+import type { AgentTask, AgentResponse, AgentMessage, AgentRole, TaxFormSuggestion, UserMode } from '../types';
 import { TaxCalculatorAgent } from './TaxCalculatorAgent';
+import { ComplianceAgent } from './ComplianceAgent';
+import { UserProfilingAgent } from './UserProfilingAgent';
 import { createLLMProvider } from '../llm/LLMProvider';
 import type { LLMConfig, LLMMessage } from '../llm/LLMProvider';
 
@@ -25,6 +27,8 @@ export class OrchestratorAgent extends BaseAgent {
     // Initialize specialized agents
     this.specializedAgents = new Map();
     this.specializedAgents.set('tax_calculator', new TaxCalculatorAgent(providerConfig));
+    this.specializedAgents.set('compliance_checker', new ComplianceAgent(providerConfig));
+    this.specializedAgents.set('user_profiling', new UserProfilingAgent(providerConfig));
   }
 
   async processTask(task: AgentTask): Promise<AgentResponse> {
@@ -33,7 +37,7 @@ export class OrchestratorAgent extends BaseAgent {
     try {
       // Determine which agent(s) should handle this task
       const targetAgentRole = this.determineTargetAgent(task);
-      
+
       if (targetAgentRole && this.specializedAgents.has(targetAgentRole)) {
         // Delegate to specialized agent
         const agent = this.specializedAgents.get(targetAgentRole)!;
@@ -78,6 +82,8 @@ export class OrchestratorAgent extends BaseAgent {
         return await this.handleAdvisoryRequest(message);
       } else if (intent.requiresDocumentProcessing) {
         return await this.handleDocumentRequest(message);
+      } else if (intent.requiresCompliance) {
+        return await this.handleComplianceRequest(message);
       } else {
         // General conversation
         return await this.handleGeneralConversation(message);
@@ -106,7 +112,7 @@ export class OrchestratorAgent extends BaseAgent {
       requiresCalculation: /calculate|compute|tax|owe|refund|income|deduction/i.test(userMessage),
       requiresAdvice: /advice|recommend|suggest|optimize|save|strategy|planning/i.test(userMessage),
       requiresDocumentProcessing: /upload|document|w-?2|1099|receipt|form/i.test(userMessage),
-      requiresCompliance: /legal|compliant|eligible|qualify|rules|requirements/i.test(userMessage),
+      requiresCompliance: /legal|compliant|eligible|qualify|rules|requirements|allowed|audit/i.test(userMessage),
       intent: this.extractIntent(userMessage)
     };
   }
@@ -129,7 +135,7 @@ export class OrchestratorAgent extends BaseAgent {
 
   private async handleCalculationRequest(message: AgentMessage): Promise<AgentResponse> {
     const taxCalculatorAgent = this.specializedAgents.get('tax_calculator');
-    
+
     if (!taxCalculatorAgent) {
       return this.createResponse(
         false,
@@ -152,6 +158,19 @@ export class OrchestratorAgent extends BaseAgent {
     return response;
   }
 
+  private async handleComplianceRequest(message: AgentMessage): Promise<AgentResponse> {
+    const complianceAgent = this.specializedAgents.get('compliance_checker');
+
+    if (!complianceAgent) {
+      return this.createResponse(
+        false,
+        'Compliance service is currently unavailable'
+      );
+    }
+
+    return await complianceAgent.generateResponse(message);
+  }
+
   private async handleAdvisoryRequest(message: AgentMessage): Promise<AgentResponse> {
     // Create advisory message based on context
     const { taxContext, userProfile } = this.state.memory;
@@ -165,7 +184,7 @@ export class OrchestratorAgent extends BaseAgent {
     }
 
     const totalIncome = taxContext.income.w2.reduce((sum, w2) => sum + w2.wages, 0) +
-                        taxContext.income.form1099.reduce((sum, f1099) => sum + f1099.amount, 0);
+      taxContext.income.form1099.reduce((sum, f1099) => sum + f1099.amount, 0);
     if (userProfile.filingStatus === 'single' && totalIncome > 50000) {
       suggestions.push('Explore tax-advantaged investment accounts');
     }
@@ -217,6 +236,22 @@ If user wants to file taxes, guide them through step-by-step automated form fill
     // Analyze conversation for form suggestions
     const formSuggestions = this.analyzeForFormSuggestions(message.content, this.state.memory.conversationHistory);
 
+    // Also trigger background user profiling
+    const profilingAgent = this.specializedAgents.get('user_profiling');
+    if (profilingAgent) {
+      // Fire and forget profiling task
+      profilingAgent.processTask({
+        id: `profile-${Date.now()}`,
+        type: 'analyze_behavior',
+        input: {
+          interactionHistory: this.state.memory.conversationHistory.slice(-5),
+          errorRate: 0, // Placeholder
+          timePerTask: 30 // Placeholder
+        },
+        priority: 'low'
+      }).catch(console.error);
+    }
+
     return this.createResponse(
       true,
       response.content,
@@ -230,16 +265,16 @@ If user wants to file taxes, guide them through step-by-step automated form fill
   }
 
   private analyzeForFormSuggestions(currentMessage: string, history: AgentMessage[]): TaxFormSuggestion[] {
-  const suggestions: TaxFormSuggestion[] = [];
+    const suggestions: TaxFormSuggestion[] = [];
     const messageLower = currentMessage.toLowerCase();
     const fullConversation = [...history.map(h => h.content), currentMessage].join(' ').toLowerCase();
 
     // Check for 1040 form indicators
     if ((messageLower.includes('income') || messageLower.includes('wage') || messageLower.includes('salary')) &&
-        (messageLower.includes('tax') || messageLower.includes('file') || messageLower.includes('return'))) {
-      
-  const suggestedFields: Record<string, string> = {};
-      
+      (messageLower.includes('tax') || messageLower.includes('file') || messageLower.includes('return'))) {
+
+      const suggestedFields: Record<string, string> = {};
+
       // Extract potential income information from conversation
       if (fullConversation.includes('wage') || fullConversation.includes('salary')) {
         suggestedFields['Line 1'] = 'Wages, salaries, tips (from W-2)';
@@ -264,9 +299,9 @@ If user wants to file taxes, guide them through step-by-step automated form fill
     }
 
     // Check for Schedule A (itemized deductions)
-    if (messageLower.includes('deduction') || messageLower.includes('itemize') || 
-        messageLower.includes('charity') || messageLower.includes('medical') || messageLower.includes('mortgage')) {
-      
+    if (messageLower.includes('deduction') || messageLower.includes('itemize') ||
+      messageLower.includes('charity') || messageLower.includes('medical') || messageLower.includes('mortgage')) {
+
       suggestions.push({
         id: `form-schedule-a-${Date.now()}`,
         formType: 'Schedule A',
@@ -283,9 +318,9 @@ If user wants to file taxes, guide them through step-by-step automated form fill
     }
 
     // Check for W-4 form
-    if (messageLower.includes('withholding') || messageLower.includes('w-4') || 
-        messageLower.includes('too much') || messageLower.includes('refund') || messageLower.includes('owe')) {
-      
+    if (messageLower.includes('withholding') || messageLower.includes('w-4') ||
+      messageLower.includes('too much') || messageLower.includes('refund') || messageLower.includes('owe')) {
+
       suggestions.push({
         id: `form-w4-${Date.now()}`,
         formType: 'W-4',
@@ -311,9 +346,12 @@ If user wants to file taxes, guide them through step-by-step automated form fill
       'scenario_analysis': 'tax_calculator',
       'process_document': 'document_processor',
       'validate_compliance': 'compliance_checker',
+      'check_eligibility': 'compliance_checker',
       'provide_advice': 'tax_advisor',
       'fill_form': 'form_filler',
-      'optimize_tax': 'optimization_analyzer'
+      'optimize_tax': 'optimization_analyzer',
+      'analyze_behavior': 'user_profiling',
+      'adapt_ui': 'user_profiling'
     };
 
     return taskTypeToAgent[task.type] || null;
@@ -321,7 +359,7 @@ If user wants to file taxes, guide them through step-by-step automated form fill
 
   private buildContextMessage(): string {
     const { taxContext, userProfile } = this.state.memory;
-    
+
     let context = '## User Profile:\n';
     context += `Expertise Level: ${userProfile.preferences.mode}\n`;
     context += `Filing Status: ${userProfile.filingStatus || 'Not specified'}\n`;
@@ -400,8 +438,28 @@ If user wants to file taxes, guide them through step-by-step automated form fill
 
   private async startTaxFilingWorkflow(): Promise<AgentResponse> {
     this.updateContext({ fillingStep: 'personal_info', workflowData: {} });
+    const mode = this.state.memory.userProfile.preferences.mode;
 
-    const message = `🎯 **Let's file your taxes automatically!**
+    let message = '';
+
+    if (mode === 'expert') {
+      message = `🚀 **Expert Mode Activated**
+
+Please upload all your tax documents (W-2, 1099s, etc.) at once. I will extract everything and prepare your return for review.
+
+If you don't have documents ready, you can provide your details in a single message:
+"Name, SSN, Filing Status, Total Wages, Other Income, Deductions"`;
+    } else if (mode === 'intermediate') {
+      message = `⚡ **Intermediate Mode**
+
+Let's get your taxes done efficiently.
+
+**Step 1: Personal & Income Info**
+Please upload your W-2 or provide your Name, SSN, Filing Status, and Total Income.
+I'll only ask for details if something is missing.`;
+    } else {
+      // Novice (default)
+      message = `🎯 **Let's file your taxes automatically!**
 
 I'll guide you step-by-step through the tax filing process. I'll ask you questions and automatically fill out your tax forms.
 
@@ -414,12 +472,13 @@ Let's start with some basic information:
 3️⃣ What is your filing status? (Single, Married Filing Jointly, Head of Household)
 
 Please provide these details, and I'll automatically fill your Form 1040.`;
+    }
 
     return this.createResponse(
       true,
       message,
       undefined,
-      ['Started automated tax filing workflow', 'Step 1: Collecting personal information'],
+      [`Started automated tax filing workflow (${mode} mode)`, 'Step 1: Collecting personal information'],
       1.0
     );
   }
@@ -446,7 +505,7 @@ Return in JSON format: { "name": "...", "ssn": "...", "filingStatus": "..." }`;
       ], { temperature: 0, maxTokens: 200 });
 
       const extracted = JSON.parse(response);
-      
+
       // Store extracted data
       workflowData.personalInfo = extracted;
       this.updateContext({ workflowData });
@@ -517,10 +576,10 @@ Return in JSON format: { "w2Wages": number, "otherIncome": [{"type": "...", "amo
       ], { temperature: 0, maxTokens: 200 });
 
       const extracted = JSON.parse(response);
-      
+
       // Calculate total income
       const w2Income = extracted.w2Wages || 0;
-  const otherIncome = (extracted.otherIncome || []).reduce((sum: number, item: { amount: number }) => sum + (item?.amount || 0), 0);
+      const otherIncome = (extracted.otherIncome || []).reduce((sum: number, item: { amount: number }) => sum + (item?.amount || 0), 0);
       const totalIncome = w2Income + otherIncome;
       const agi = totalIncome; // Simplified - actual AGI calculation is more complex
 
@@ -611,8 +670,8 @@ Return in JSON format: { "mortgageInterest": number, "stateTaxes": number, "char
         ], { temperature: 0, maxTokens: 200 });
 
         const extracted = JSON.parse(response);
-        itemizedTotal = (extracted.mortgageInterest || 0) + (extracted.stateTaxes || 0) + 
-                       (extracted.charitable || 0) + (extracted.medical || 0);
+        itemizedTotal = (extracted.mortgageInterest || 0) + (extracted.stateTaxes || 0) +
+          (extracted.charitable || 0) + (extracted.medical || 0);
 
         if (itemizedTotal > standardDeduction) {
           deductionAmount = itemizedTotal;
@@ -623,7 +682,7 @@ Return in JSON format: { "mortgageInterest": number, "stateTaxes": number, "char
 
       // Calculate taxable income
       const taxableIncome = Math.max(0, agi - deductionAmount);
-      
+
       // Calculate tax (simplified 2024 tax brackets for single filer)
       let tax = 0;
       if (taxableIncome <= 11600) {
@@ -643,7 +702,7 @@ Return in JSON format: { "mortgageInterest": number, "stateTaxes": number, "char
       };
       workflowData.calculations.taxableIncome = taxableIncome;
       workflowData.calculations.tax = Math.round(tax);
-      
+
       this.updateContext({ workflowData });
 
       // Move to review step
@@ -753,4 +812,11 @@ Your current tax: $${workflowData.calculations?.tax.toLocaleString()}`,
       );
     }
   }
+
+  setMode(mode: UserMode): void {
+    this.state.memory.userProfile.preferences.mode = mode;
+    this.updateContext({ mode });
+  }
+
+  // ...existing code...
 }

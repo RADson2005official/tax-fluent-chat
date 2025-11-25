@@ -298,6 +298,30 @@ Always ensure recommendations are legal and well-documented.`,
   model: 'gpt-4o'
 };
 
+export const USER_PROFILING_AGENT_CONFIG: AgentConfig = {
+  role: 'user_profiling',
+  name: 'User Profiling Specialist',
+  description: 'Analyzes user behavior and adapts the interface',
+  systemPrompt: `You are a User Profiling Specialist.
+Your goal is to understand the user's expertise level (Novice, Intermediate, Expert) based on their interactions.
+You can suggest interface adaptations to make the experience better.`,
+  capabilities: [
+    {
+      name: 'behavior_analysis',
+      description: 'Analyze user interaction patterns',
+      tools: ['analyze_behavior', 'track_metrics']
+    },
+    {
+      name: 'ui_adaptation',
+      description: 'Suggest UI adaptations',
+      tools: ['adapt_ui', 'recommend_mode']
+    }
+  ],
+  temperature: 0.7,
+  maxTokens: 1000,
+  model: 'gpt-4o'
+};
+
 export const AGENT_CONFIGS = {
   orchestrator: ORCHESTRATOR_CONFIG,
   tax_calculator: TAX_CALCULATOR_CONFIG,
@@ -305,5 +329,6 @@ export const AGENT_CONFIGS = {
   compliance_checker: COMPLIANCE_CHECKER_CONFIG,
   tax_advisor: TAX_ADVISOR_CONFIG,
   form_filler: FORM_FILLER_CONFIG,
-  optimization_analyzer: OPTIMIZATION_ANALYZER_CONFIG
+  optimization_analyzer: OPTIMIZATION_ANALYZER_CONFIG,
+  user_profiling: USER_PROFILING_AGENT_CONFIG
 };

@@ -1,9 +1,19 @@
 <template>
-  <div :class="cn('rounded-lg border bg-card text-card-foreground shadow-sm', $attrs.class)">
+  <div
+    :class="cn(
+      'rounded-xl border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-md',
+      'glass-card', // Apply glassmorphism
+      props.class
+    )"
+  >
     <slot />
   </div>
 </template>
 
 <script setup lang="ts">
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
+
+const props = defineProps<{
+  class?: string
+}>()
 </script>
