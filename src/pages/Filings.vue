@@ -13,7 +13,7 @@
             <Send class="mr-2 h-4 w-4" />
             {{ isSubmitting ? 'Filing...' : 'E-File Now' }}
           </Button>
-          <Button @click="router.push('/filing/new')">
+          <Button @click="router.push('/filing/chat')">
             <PlusCircle class="mr-2 h-4 w-4" />
             New Filing
           </Button>
@@ -82,7 +82,7 @@
           <FileText class="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h3 class="text-lg font-semibold mb-2">No Tax Filings Yet</h3>
           <p class="text-muted-foreground mb-6">Start your first tax filing to see it here</p>
-          <Button @click="router.push('/filing/new')">
+          <Button @click="router.push('/filing/chat')">
             <PlusCircle class="mr-2 h-4 w-4" />
             Create New Filing
           </Button>

@@ -20,7 +20,7 @@
       <Button variant="ghost" size="icon">
         <Bell class="h-5 w-5" />
       </Button>
-      <Button variant="glow" size="sm" class="hidden sm:flex" @click="router.push('/filing/new')">
+      <Button variant="glow" size="sm" class="hidden sm:flex" @click="router.push('/filing/chat')">
         <Plus class="mr-2 h-4 w-4" />
         New Filing
       </Button>

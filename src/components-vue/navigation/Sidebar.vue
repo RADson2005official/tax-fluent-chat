@@ -53,7 +53,8 @@ import {
   PieChart, 
   Settings, 
   HelpCircle,
-  LogOut
+  LogOut,
+  MessageSquare
 } from 'lucide-vue-next';
 import Button from '@/components-vue/ui/Button.vue';
 import Card from '@/components-vue/ui/Card.vue';
@@ -69,6 +70,7 @@ const user = computed(() => authStore.user);
 
 const navigation = computed(() => [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', current: route.path === '/dashboard' },
+  { name: 'AI Tax Chat', icon: MessageSquare, path: '/filing/chat', current: route.path === '/filing/chat' },
   { name: 'My Filings', icon: FileText, path: '/filings', current: route.path === '/filings' },
   { name: 'Reports', icon: PieChart, path: '/reports', current: route.path === '/reports' },
   { name: 'Settings', icon: Settings, path: '/settings', current: route.path === '/settings' },

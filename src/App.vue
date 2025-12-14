@@ -6,6 +6,7 @@
       </Transition>
     </RouterView>
     <LiveActivityIsland />
+    <ToastContainer />
   </TooltipProvider>
 </template>
 
@@ -13,6 +14,7 @@
 import { RouterView } from 'vue-router';
 import { TooltipProvider } from 'radix-vue';
 import LiveActivityIsland from '@/components-vue/sdui/LiveActivityIsland.vue';
+import ToastContainer from '@/components-vue/ui/ToastContainer.vue';
 </script>
 
 <style>

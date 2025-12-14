@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import time
 
 from app.database import engine, Base
-from app.api import auth, users, tax_forms, sdui, ws, documents, filing
+from app.api import auth, users, tax_forms, sdui, ws, documents, filing, chat_llm
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -29,9 +29,10 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
 app.include_router(tax_forms.router, prefix="/api")
 app.include_router(sdui.router)
-app.include_router(ws.router)
+app.include_router(ws.router, prefix="/api")
 app.include_router(documents.router, prefix="/api")
 app.include_router(filing.router, prefix="/api")
+app.include_router(chat_llm.router, prefix="/api")  # LLaMA Chat API
 
 # ============================================================================
 # CORS Middleware
