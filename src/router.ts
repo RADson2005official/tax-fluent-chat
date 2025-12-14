@@ -82,6 +82,18 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/filing/grid',
+      name: 'FilingGrid',
+      component: () => import('./pages/FilingGrid.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/filing/wizard',
+      name: 'WizardFiling',
+      component: () => import('./pages/WizardFiling.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: NotFound,

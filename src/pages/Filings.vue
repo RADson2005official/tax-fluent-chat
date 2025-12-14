@@ -48,7 +48,7 @@
             </div>
           </CardHeader>
           <CardContent>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm mb-4">
               <div>
                 <div class="text-muted-foreground">Filing Status</div>
                 <div class="font-medium">{{ filing.filingStatus }}</div>
@@ -67,6 +67,12 @@
                   {{ filing.refundAmount >= 0 ? '+' : '' }}₹{{ Math.abs(filing.refundAmount).toLocaleString() }}
                 </div>
               </div>
+            </div>
+            <div class="flex justify-end">
+              <Button variant="outline" size="sm" @click.stop="exportJSON(filing.id)">
+                <Download class="mr-2 h-4 w-4" />
+                Export JSON
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -95,7 +101,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, PlusCircle, FileText, Send } from 'lucide-vue-next'
+import { ArrowLeft, PlusCircle, FileText, Send, Download } from 'lucide-vue-next'
 import BackButton from '@/components-vue/navigation/BackButton.vue'
 import DynamicLayoutContainer from '@/components-vue/dynamic/DynamicLayoutContainer.vue'
 import Card from '@/components-vue/ui/Card.vue'
@@ -107,6 +113,7 @@ import { cn } from '@/lib/utils'
 
 const router = useRouter()
 const isSubmitting = ref(false)
+const isExporting = ref(false)
 
 // Mock data - in a real app, this would come from an API
 const filings = ref([
@@ -135,6 +142,44 @@ const filings = ref([
 const viewFiling = (id: number) => {
   // In a real app, this would navigate to a detailed filing view
   console.log('Viewing filing:', id)
+}
+
+const exportJSON = async (id: number) => {
+  isExporting.value = true
+  try {
+    const token = localStorage.getItem('token')
+    const response = await fetch(`http://localhost:8000/api/filing/export/${id}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      alert(`Export failed: ${errorData.detail || 'Unknown error'}`)
+      return
+    }
+
+    // Handle JSON download
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `ITR-1_Export_${id}.json`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+    
+    alert('Export successful! JSON downloaded.')
+    
+  } catch (error) {
+    console.error('Export error:', error)
+    alert('An error occurred during export.')
+  } finally {
+    isExporting.value = false
+  }
 }
 
 const simulateEfiling = async () => {

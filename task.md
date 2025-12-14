@@ -67,5 +67,34 @@
         - [x] "Step-by-step" New Filing flow
     - [x] Update Documentation (`README.md`) <!-- id: 25 -->
     - [x] Create Run Script (`run_app.bat`) <!-- id: 26 -->
+    - [x] Upload to GitHub (`https://github.com/Dakshit06/Automated_Tax_Filling_agant.git`)
+
+## Phase 1: The Schema Core & Export (Blueprint)
+- [x] Implement ITR-1 JSON Export Endpoint (`POST /api/filing/export`)
+- [x] Verify Pydantic models against official schema
+- [x] Frontend: Implement Export Button and Flow
+- [x] **Enhancement**: Implement "Smart Upload Zone" in `Documents.vue` (Drag & Drop, Auto-tick)
+- [x] **Enhancement**: Implement `WizardFiling.vue` (Linear Stepper, Plain English)
+
+## Phase 2: The Agentic Backend (Blueprint)
+- [x] Verify TaxLogicAgent and ComplianceAgent integration (GroupChat implemented)
+- [x] Ensure WebSocket streams agent "thoughts" (Live Tracking connected)
+- [x] **Enhancement**: Implement "Ingestion Agent" logic (Mock/Prototype) to pre-fill form from uploads
+
+## Phase 3: The Adaptive Frontend (Blueprint)
+- [x] Implement "Expert Mode" (Grid Layout)
+- [x] Integrate Mode Switcher (Novice/Expert)
+- [x] Implement "Novice Mode" (Wizard/Chat) refinements
+- [x] **Enhancement**: Create `RegimeComparison.vue` (Integrated into WizardFiling)
+- [x] **Enhancement**: Add "Explain this Field" tooltip support (Integrated into WizardFiling)
+
+## Phase 4: Visualization & SMPC (Blueprint)
+- [x] Implement Tax Flow Sankey Diagram
+- [x] Implement Live Tracking Sidebar
+- [ ] Implement SMPC Benchmarking (Mock/Prototype)
+
+## Phase 5: Testing & Compliance (Blueprint)
+- [ ] Run Metamorphic Tests
+- [ ] Verify exported JSONs
 
 ```

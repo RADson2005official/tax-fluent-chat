@@ -30,7 +30,10 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             
             # Run AutoGen Chat
             try:
-                response = await run_autogen_chat(user_message)
+                async def send_log(msg):
+                    await websocket.send_json(msg)
+
+                response = await run_autogen_chat(user_message, broadcast_callback=send_log)
                 
                 # Send response back
                 await websocket.send_json({

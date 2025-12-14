@@ -89,7 +89,10 @@ import CardContent from '@/components-vue/ui/CardContent.vue'
 import Button from '@/components-vue/ui/Button.vue'
 import { cn } from '@/lib/utils'
 
+import { useAuthStore } from '@/stores/authStore'
+
 const router = useRouter()
+const authStore = useAuthStore()
 
 const selectedYear = ref<number | null>(2024)
 const selectedStatus = ref<string | null>(null)
@@ -102,17 +105,19 @@ const filingStatuses = [
 ]
 
 const startFiling = () => {
-  if (selectedYear && selectedStatus) {
-    // Navigate to the AI Chat to start the filing process
-    // In a real app, we might pass the selected year/status as query params
-    router.push({ 
-      path: '/chat',
-      query: { 
-        context: 'new_filing',
-        year: selectedYear.value,
-        status: selectedStatus.value
-      }
-    })
+  if (selectedYear.value && selectedStatus.value) {
+    if (authStore.mode === 'expert') {
+      router.push('/filing/grid')
+    } else {
+      router.push({ 
+        path: '/filing/wizard',
+        query: { 
+          context: 'new_filing',
+          year: selectedYear.value,
+          status: selectedStatus.value
+        }
+      })
+    }
   }
 }
 </script>

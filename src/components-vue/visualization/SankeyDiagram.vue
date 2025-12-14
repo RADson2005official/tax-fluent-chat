@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full overflow-x-auto p-4">
-    <div class="min-w-[800px] relative h-[400px]">
+  <div class="w-full h-full p-4">
+    <div class="w-full relative aspect-[2/1]">
       <svg class="w-full h-full" viewBox="0 0 800 400">
         <defs>
           <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">

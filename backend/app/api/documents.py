@@ -41,7 +41,7 @@ async def upload_document(
         llm_config = {
             "config_list": [{
                 "model": "gpt-4",
-                "api_key": os.getenv("VITE_OPENAI_API_KEY")
+                "api_key": os.getenv("OPENAI_API_KEY")
             }],
             "temperature": 0
         }

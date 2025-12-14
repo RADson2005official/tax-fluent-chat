@@ -16,6 +16,7 @@
     </div>
 
     <div class="flex items-center gap-2">
+      <ModeSwitcher :mode="authStore.mode" @change="authStore.setMode" class="hidden md:flex" />
       <Button variant="ghost" size="icon">
         <Bell class="h-5 w-5" />
       </Button>
@@ -30,9 +31,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { Menu, Search, Bell, Plus } from 'lucide-vue-next';
+import { useAuthStore } from '@/stores/authStore';
 import Button from '@/components-vue/ui/Button.vue';
 import Input from '@/components-vue/ui/Input.vue';
+import ModeSwitcher from '@/components-vue/adaptive/ModeSwitcher.vue';
 
 defineEmits(['toggleSidebar']);
 const router = useRouter();
+const authStore = useAuthStore();
 </script>

@@ -67,12 +67,20 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    const mode = ref<string>('novice')
+
+    function setMode(newMode: string) {
+        mode.value = newMode
+    }
+
     return {
         token,
         user,
+        mode,
         isAuthenticated,
         login,
         register,
-        logout
+        logout,
+        setMode
     }
 })
