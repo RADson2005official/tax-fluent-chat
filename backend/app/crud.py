@@ -5,7 +5,7 @@ from typing import Optional, List
 from datetime import datetime
 
 from app import models, schemas
-from app.security import get_password_hash, encrypt_data
+from app.core.security import get_password_hash, encrypt_data
 
 
 # ============================================================================
@@ -485,7 +485,7 @@ def get_user_audit_logs(db: Session, user_id: int, limit: int = 100) -> List[mod
 
 def authenticate_user(db: Session, email: str, password: str) -> Optional[models.User]:
     """Authenticate user with email and password."""
-    from app.security import verify_password
+    from app.core.security import verify_password
     
     user = get_user_by_email(db, email)
     if not user:

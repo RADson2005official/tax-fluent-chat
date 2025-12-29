@@ -9,7 +9,7 @@ from app.sdui.schema import Screen
 from app.sdui.generator import generate_dashboard_schema
 
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.core.database import get_db
 from app import crud
 
 router = APIRouter(prefix="/api/sdui", tags=["Server-Driven UI"])

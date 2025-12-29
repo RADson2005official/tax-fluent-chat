@@ -133,7 +133,7 @@ async def upload_document_for_chat(
             shutil.copyfileobj(file.file, buffer)
         
         # Process document with LLaMA
-        result = process_tax_document(file_path, session_id)
+        result = await process_tax_document(file_path, session_id)
         
         return {
             "success": result.get("success", False),

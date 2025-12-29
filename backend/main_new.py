@@ -186,7 +186,7 @@ async def shutdown_event():
 def main():
     """Run the FastAPI application with uvicorn."""
     uvicorn.run(
-        "main:app",
+        "main_new:app",
         host=settings.HOST,
         port=settings.PORT,
         reload=settings.RELOAD and settings.is_development,

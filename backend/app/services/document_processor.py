@@ -68,7 +68,8 @@ def extract_json_from_response(response: str) -> Dict[str, Any]:
     return {"error": "Failed to parse response", "raw_response": response[:500]}
 
 
-def process_tax_document(file_path: str, session_id: str = "default") -> Dict[str, Any]:
+
+async def process_tax_document(file_path: str, session_id: str = "default") -> Dict[str, Any]:
     """
     Process a tax document file and extract structured data using OCR + LLaMA.
     
@@ -109,7 +110,7 @@ def process_tax_document(file_path: str, session_id: str = "default") -> Dict[st
     
     try:
         # Generate response using LLaMA
-        response = llama.generate(parse_prompt)
+        response = await llama.generate(parse_prompt)
         
         # Parse JSON from response
         parsed_data = extract_json_from_response(response)

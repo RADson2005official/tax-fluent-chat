@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
 import time
 
-from app.database import engine, Base
+from app.core.database import engine, Base
 from app.api import auth, users, tax_forms, sdui, ws, documents, filing, chat_llm
 
 # Create database tables
@@ -119,7 +119,7 @@ async def health_check():
         - database: Database connection status
         - timestamp: Current server time
     """
-    from app.database import SessionLocal
+    from app.core.database import SessionLocal
     from datetime import datetime
     from sqlalchemy import text
     

@@ -95,8 +95,11 @@ async def send_chat_message(request: ChatMessageRequest):
     try:
         expert = get_llama_expert()
         
-        # Generate response
-        response = expert.generate(request.message)
+        # Get history
+        history = session_store.get_conversation_history(request.session_id)
+        
+        # Generate response with context
+        response = await expert.generate(request.message, history=history)
         
         # Update session
         session_store.update_conversation(

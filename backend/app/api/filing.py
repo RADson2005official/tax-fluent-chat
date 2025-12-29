@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import Response, JSONResponse
 from sqlalchemy.orm import Session
-from app.database import get_db
+from app.core.database import get_db
 from app.api import auth
 from app import crud
 from app.models import User, TaxForm, W2Form, Form1099, Dependent

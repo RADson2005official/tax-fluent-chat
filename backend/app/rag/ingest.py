@@ -11,8 +11,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sentence_transformers import SentenceTransformer
 
-from app.database import SessionLocal
-from app.config import Settings
+from app.core.database import SessionLocal
+from app.core.config import Settings
 
 # Load settings
 settings = Settings()

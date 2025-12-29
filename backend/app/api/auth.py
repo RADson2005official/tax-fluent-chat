@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 
 from app import crud, schemas
-from app.database import get_db
-from app.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.core.database import get_db
+from app.core.security import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
     prefix="/auth",
@@ -22,7 +22,7 @@ async def get_current_user(
 ):
     """Get current authenticated user from JWT token."""
     from jose import JWTError, jwt
-    from app.security import SECRET_KEY, ALGORITHM
+    from app.core.security import SECRET_KEY, ALGORITHM
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

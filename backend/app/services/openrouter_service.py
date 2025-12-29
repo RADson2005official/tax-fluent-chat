@@ -93,6 +93,35 @@ Question that was asked: {question_context}"""
             print(f"[OpenRouter] Extraction error: {e}")
             return None
     
+    async def chat_completion(self, messages: list, temperature: float = 0.7) -> Optional[str]:
+        """
+        Generic chat completion for full conversation history.
+        Used as fallback for LLaMA service.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=45.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/chat/completions",
+                    headers=self.headers,
+                    json={
+                        "model": self.model,
+                        "messages": messages,
+                        "temperature": temperature,
+                        "max_tokens": 1024
+                    }
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    return data["choices"][0]["message"]["content"].strip()
+                else:
+                    print(f"[OpenRouter] API error: {response.status_code} - {response.text}")
+                    return None
+                    
+        except Exception as e:
+            print(f"[OpenRouter] Chat completion error: {e}")
+            return None
+    
     async def generate_response(self, user_message: str, context: str = "") -> str:
         """
         Generate a conversational response for tax-related queries.

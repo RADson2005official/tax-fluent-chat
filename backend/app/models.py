@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Float, Boolean, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from pgvector.sqlalchemy import Vector
-from app.database import Base
+from app.core.database import Base
 
 
 # =============================================================================
@@ -22,7 +22,7 @@ class TaxEmbedding(Base):
     id = Column(Integer, primary_key=True, index=True)
     content = Column(Text, nullable=False)
     embedding = Column(Vector(384), nullable=False)  # all-MiniLM-L6-v2 = 384 dimensions
-    metadata = Column(JSON, default=dict)  # source, chunk_id, etc.
+    doc_metadata = Column(JSON, default=dict)  # source, chunk_id, etc.
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # HNSW index for fast similarity search (created via migration)
@@ -55,7 +55,7 @@ class DocumentEmbedding(Base):
     document_id = Column(Integer)  # Reference to original document if applicable
     content = Column(Text, nullable=False)
     embedding = Column(Vector(384), nullable=False)
-    metadata = Column(JSON, default=dict)
+    doc_metadata = Column(JSON, default=dict)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     __table_args__ = (
