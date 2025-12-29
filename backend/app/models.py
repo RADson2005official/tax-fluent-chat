@@ -1,8 +1,80 @@
 """SQLAlchemy database models for the Tax Filing System."""
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Boolean, Text, JSON, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, Boolean, Text, JSON, DateTime, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from pgvector.sqlalchemy import Vector
 from app.database import Base
+
+
+# =============================================================================
+# Vector Embedding Models (pgvector)
+# =============================================================================
+
+class TaxEmbedding(Base):
+    """
+    Tax rules/documents embeddings stored with pgvector.
+    
+    Uses HNSW index for high-performance approximate nearest neighbor search.
+    Replaces ChromaDB with native PostgreSQL pgvector storage.
+    """
+    __tablename__ = "tax_embeddings"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(Text, nullable=False)
+    embedding = Column(Vector(384), nullable=False)  # all-MiniLM-L6-v2 = 384 dimensions
+    metadata = Column(JSON, default=dict)  # source, chunk_id, etc.
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # HNSW index for fast similarity search (created via migration)
+    __table_args__ = (
+        Index(
+            'idx_tax_embeddings_hnsw',
+            embedding,
+            postgresql_using='hnsw',
+            postgresql_with={'m': 16, 'ef_construction': 64},
+            postgresql_ops={'embedding': 'vector_cosine_ops'}
+        ),
+    )
+    
+    def __repr__(self):
+        return f"<TaxEmbedding(id={self.id}, content_preview='{self.content[:50]}...')>"
+
+
+class DocumentEmbedding(Base):
+    """
+    User document embeddings for semantic search across uploaded documents.
+    
+    Supports storing embeddings from user-uploaded tax documents (W2, 1099, etc.)
+    for intelligent document retrieval and cross-referencing.
+    """
+    __tablename__ = "document_embeddings"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    document_type = Column(String, nullable=False)  # w2, 1099, receipt, etc.
+    document_id = Column(Integer)  # Reference to original document if applicable
+    content = Column(Text, nullable=False)
+    embedding = Column(Vector(384), nullable=False)
+    metadata = Column(JSON, default=dict)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    __table_args__ = (
+        Index(
+            'idx_document_embeddings_hnsw',
+            embedding,
+            postgresql_using='hnsw',
+            postgresql_with={'m': 16, 'ef_construction': 64},
+            postgresql_ops={'embedding': 'vector_cosine_ops'}
+        ),
+    )
+    
+    def __repr__(self):
+        return f"<DocumentEmbedding(id={self.id}, user_id={self.user_id}, type={self.document_type})>"
+
+
+# =============================================================================
+# User and Authentication Models
+# =============================================================================
 
 
 class User(Base):
@@ -21,6 +93,7 @@ class User(Base):
     # Relationships
     profile = relationship("UserProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     tax_forms = relationship("TaxForm", back_populates="owner", cascade="all, delete-orphan")
+    document_embeddings = relationship("DocumentEmbedding", backref="user", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email})>"

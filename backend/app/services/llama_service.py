@@ -10,8 +10,9 @@ import torch
 from typing import Optional, Generator, Dict, Any
 from functools import lru_cache
 
-# Model configuration
-BASE_MODEL = "unsloth/llama-3-8b-Instruct-bnb-4bit"
+# Model configuration - using pre-quantized unsloth model (fits in 4GB VRAM)
+# For GPU+CPU hybrid, would need non-quantized model, but that requires more VRAM
+BASE_MODEL = "unsloth/llama-3-8b-Instruct-bnb-4bit"  # Pre-quantized, GPU-only
 PEFT_MODEL = "JayNagose/LLaMa-3.2-tax-basic"
 
 # Tax Expert system prompt
@@ -66,7 +67,9 @@ class LlamaTaxExpert:
             
             print(f"[LLaMA] Loading base model: {BASE_MODEL}")
             
-            # 4-bit quantization config optimized for 4GB VRAM
+            # GPU-only mode with pre-quantized 4-bit model
+            # Note: Pre-quantized model doesn't support CPU offload - runs entirely on GPU
+            # The unsloth 4-bit model fits in ~4GB VRAM
             bnb_config = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_quant_type="nf4",
@@ -83,12 +86,21 @@ class LlamaTaxExpert:
             if self._tokenizer.pad_token is None:
                 self._tokenizer.pad_token = self._tokenizer.eos_token
             
-            # Load base model with quantization
-            print("[LLaMA] Loading base model with 4-bit quantization...")
+            # Load base model - GPU only for pre-quantized model
+            if torch.cuda.is_available():
+                gpu_name = torch.cuda.get_device_name(0)
+                gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
+                print(f"[LLaMA] Loading on GPU: {gpu_name} ({gpu_memory_gb:.1f}GB VRAM)")
+                device_map = "cuda"
+            else:
+                print("[LLaMA] Loading on CPU (slower inference)")
+                device_map = "cpu"
+            
+            print("[LLaMA] Loading with 4-bit quantization...")
             self._model = AutoModelForCausalLM.from_pretrained(
                 BASE_MODEL,
-                quantization_config=bnb_config,
-                device_map="auto",
+                quantization_config=bnb_config if torch.cuda.is_available() else None,
+                device_map=device_map,
                 torch_dtype=torch.float16,
                 trust_remote_code=True,
                 low_cpu_mem_usage=True

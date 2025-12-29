@@ -96,14 +96,40 @@
 
             <!-- Input Area -->
             <div class="border-t p-4">
+              <!-- Upload Progress -->
+              <div v-if="isUploading" class="mb-3 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg flex items-center gap-3">
+                <div class="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
+                <span class="text-sm">Processing document...</span>
+              </div>
+              
               <form @submit.prevent="handleSubmit" class="flex gap-3">
+                <!-- Hidden File Input -->
+                <input 
+                  type="file" 
+                  ref="fileInput" 
+                  class="hidden" 
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  @change="handleFileUpload"
+                />
+                
+                <!-- Upload Button -->
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  @click="triggerFileInput"
+                  :disabled="isTyping || isUploading"
+                  title="Upload Form 16, W-2, or salary slip"
+                >
+                  <Paperclip class="h-4 w-4" />
+                </Button>
+                
                 <Input 
                   v-model="inputMessage" 
                   placeholder="Tell me about your income, deductions, investments..."
                   class="flex-1"
-                  :disabled="isTyping"
+                  :disabled="isTyping || isUploading"
                 />
-                <Button type="submit" :disabled="!inputMessage.trim() || isTyping">
+                <Button type="submit" :disabled="!inputMessage.trim() || isTyping || isUploading">
                   <Send class="h-4 w-4" />
                 </Button>
               </form>
@@ -249,7 +275,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, Bot, User, Send, Sparkles, Trash2, FileText, FileSearch, Download, AlertCircle } from 'lucide-vue-next'
+import { ArrowLeft, Bot, User, Send, Sparkles, Trash2, FileText, FileSearch, Download, AlertCircle, Paperclip } from 'lucide-vue-next'
 import DynamicLayoutContainer from '@/components-vue/dynamic/DynamicLayoutContainer.vue'
 import CardTitle from '@/components-vue/ui/CardTitle.vue'
 import CardContent from '@/components-vue/ui/CardContent.vue'
@@ -294,7 +320,9 @@ interface ExtractedData {
 const messages = ref<Message[]>([])
 const inputMessage = ref('')
 const isTyping = ref(false)
+const isUploading = ref(false)
 const messagesContainer = ref<HTMLElement | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
 const extractedData = ref<ExtractedData | null>(null)
 const modelLoaded = ref(false)
 const sessionId = ref(`session_${Date.now()}`)
@@ -440,6 +468,87 @@ const downloadPDF = async () => {
   } catch (error) {
     console.error('PDF download error:', error)
     alert('Failed to generate PDF. Please try again.')
+  }
+}
+
+// Document Upload Functions
+const triggerFileInput = () => {
+  fileInput.value?.click()
+}
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (!target.files || target.files.length === 0) return
+  
+  const file = target.files[0]
+  isUploading.value = true
+  
+  // Add user message showing upload
+  messages.value.push({ 
+    role: 'user', 
+    content: `📎 Uploaded document: ${file.name}` 
+  })
+  scrollToBottom()
+  
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('session_id', sessionId.value)
+    
+    const response = await fetch(`${API_BASE}/documents/upload-for-chat?session_id=${sessionId.value}`, {
+      method: 'POST',
+      body: formData
+    })
+    
+    if (!response.ok) {
+      const err = await response.json()
+      throw new Error(err.detail || 'Upload failed')
+    }
+    
+    const result = await response.json()
+    
+    if (result.success && result.extracted_data) {
+      // Update extracted data in sidebar
+      extractedData.value = result.extracted_data
+      
+      // Add assistant message confirming extraction
+      const incomeTotal = result.extracted_data.total_income || 0
+      const formattedIncome = incomeTotal >= 100000 
+        ? `₹${(incomeTotal / 100000).toFixed(2)} L` 
+        : `₹${incomeTotal.toLocaleString('en-IN')}`
+      
+      messages.value.push({ 
+        role: 'assistant', 
+        content: `✅ I've processed your document and extracted the following information:\n\n` +
+          `📊 **Income Found**: ${formattedIncome}\n` +
+          `📝 **Deductions**: ${result.extracted_data.deductions?.length || 0} items\n` +
+          `📈 **Extraction Confidence**: ${Math.round((result.extraction_confidence || 0) * 100)}%\n\n` +
+          `The data has been added to your tax profile. You can see the details in the sidebar. ` +
+          `Is there anything you'd like me to explain or any additional information you'd like to provide?`
+      })
+      
+      modelLoaded.value = true
+    } else {
+      messages.value.push({ 
+        role: 'assistant', 
+        content: `⚠️ I had trouble extracting data from the document. ${result.error || 'Please try uploading a clearer image or PDF.'}\n\n` +
+          `**Preview of extracted text:**\n${result.raw_text_preview || 'No text could be extracted.'}`
+      })
+    }
+    
+  } catch (error: any) {
+    console.error('Upload error:', error)
+    messages.value.push({ 
+      role: 'assistant', 
+      content: `❌ Failed to process document: ${error.message || 'Unknown error'}\n\nPlease make sure the file is a valid PDF or image (JPG, PNG).`
+    })
+  } finally {
+    isUploading.value = false
+    // Reset file input
+    if (fileInput.value) {
+      fileInput.value.value = ''
+    }
+    scrollToBottom()
   }
 }
 </script>

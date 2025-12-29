@@ -428,7 +428,7 @@ Do you have receipts for the $1,500 donation you mentioned?"
 ---
 
 ### 🗄️ TASK 9: RAG Vector Database for Tax Knowledge
-**Status**: Not Started
+**Status**: ✅ Completed (Using pgvector)
 
 **Implementation**:
 
@@ -439,12 +439,12 @@ Do you have receipts for the $1,500 donation you mentioned?"
    - Form instructions
 
 2. **Create Embeddings**:
-   - Use OpenAI or Anthropic embeddings
-   - Store in ChromaDB/FAISS
+   - Using sentence-transformers (all-MiniLM-L6-v2)
+   - Store in PostgreSQL with pgvector extension
 
 3. **Semantic Search**:
    - User asks: "Can I deduct my home office?"
-   - System retrieves relevant IRS guidance
+   - System retrieves relevant IRS guidance via pgvector similarity search
    - AI summarizes in simple language
 
 ---

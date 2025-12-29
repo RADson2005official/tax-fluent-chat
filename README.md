@@ -203,159 +203,56 @@ Simply open [Lovable](https://lovable.dev/projects/342d33b1-7401-43c5-83ce-887fa
 ## Can I connect a custom domain to my Lovable project?
 
 ```bash
-
-# WindowsYes, you can!
-
-.\setup-postgresql.bat
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-# Or PowerShell
-
-.\setup-postgresql.ps1Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-
-```
-
-See [📖 Database Setup Guide](docs/setup/QUICKSTART_DATABASE.md)
-
-### 3. Backend Setup
-```bash
+# 1. Backend
 cd backend
-
-# Create virtual environment
-python -m venv venv
-.\venv\Scripts\activate  # Windows
-
-# Install dependencies
+python -m venv venv && venv\Scripts\activate
 pip install -r requirements.txt
+python main.py
 
-# Test database
-python test_db_connection.py
-
-# Start server
-uvicorn app.main:app --reload
+# 2. Frontend (new terminal)
+npm install && npm run dev
 ```
 
-**Backend**: http://localhost:8000 | **API Docs**: http://localhost:8000/docs
+**URLs:**
+- Frontend: http://localhost:8080
+- Backend API: http://localhost:8000/api/docs
 
-### 4. Frontend Setup
-```bash
-cd ../
-npm install
-npm run dev
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | Vue 3, TypeScript, Pinia, TailwindCSS |
+| Backend | FastAPI, SQLAlchemy, Pydantic |
+| Database | PostgreSQL + pgvector |
+| AI | Microsoft AutoGen, sentence-transformers |
+
+## Project Structure
+
+```
+backend/
+├── app/
+│   ├── api/           # REST endpoints
+│   ├── autogen_agents/# AI agents (tax_expert, form_filler, etc.)
+│   ├── rag/           # Vector search with pgvector
+│   ├── services/      # Business logic
+│   └── models.py      # Database models
+src/
+├── components-vue/    # Vue components
+├── pages/            # Page views
+└── stores/           # Pinia state
 ```
 
-**Frontend**: http://localhost:5173
+## Key Features
+
+- 🤖 **Conversational Filing** - Chat-based tax data collection
+- 📄 **Document OCR** - Extract data from tax documents
+- 📊 **Tax Calculation** - Indian tax slabs (Old/New regime)
+- 📝 **ITR-1 Generation** - PDF export
+
+## LLM Rules
+
+See [AGENTS.md](AGENTS.md) for LLM instructions. Key rule: **Use pgvector only** (no ChromaDB/Pinecone).
 
 ---
 
-## 📁 Project Structure
-
-```
-tax-fluent-chat/
-├── backend/                      # 🐍 FastAPI Backend
-│   ├── app/
-│   │   ├── main.py              # FastAPI application
-│   │   ├── database.py          # Database configuration
-│   │   ├── models.py            # SQLAlchemy models (9 tables)
-│   │   ├── schemas.py           # Pydantic schemas
-│   │   ├── security.py          # Auth & encryption
-│   │   ├── crud.py              # Database operations
-│   │   └── api/                 # API routers
-│   ├── requirements.txt
-│   ├── .env.dev
-│   └── test_db_connection.py
-│
-├── src/                         # 🎨 Vue Frontend
-│   ├── agents/                  # AI Agent System
-│   │   ├── langchain/          # LangChain integration
-│   │   ├── specialized/        # Specialized agents
-│   │   ├── tools/              # 25+ Tax tools
-│   │   └── llm/                # LLM providers
-│   ├── components-vue/         # Vue components
-│   ├── stores/                 # Pinia stores
-│   ├── pages/                  # Pages
-│   └── main.ts
-│
-├── docs/                        # 📚 Documentation
-│   ├── setup/                  # Setup guides
-│   ├── guides/                 # User guides
-│   └── api/                    # API docs
-│
-├── docker-compose.yml
-├── package.json
-└── README.md
-```
-
----
-
-## 📚 Documentation
-
-### 🚀 Getting Started
-- [Database Setup](docs/setup/QUICKSTART_DATABASE.md) - Quick database installation
-- [PostgreSQL (Windows)](docs/setup/POSTGRESQL_INSTALLATION_WINDOWS.md) - Windows setup
-- [PostgreSQL Setup](docs/setup/POSTGRESQL_SETUP.md) - Configuration guide
-
-### 📖 Guides
-- [LangChain Integration](docs/guides/LANGCHAIN_INTEGRATION.md) - Multi-agent workflows
-- [LangChain Quick Start](docs/guides/LANGCHAIN_QUICKSTART.md) - Quick examples
-- [AI Provider Switching](docs/guides/HOW_TO_SWITCH_PROVIDERS.md) - Change providers
-
-### 🔧 API Reference
-- [API Reference](docs/api/API_REFERENCE.md) - Complete API docs
-- [Agent System](docs/api/AGENT_SYSTEM_SUMMARY.md) - Agent architecture
-- [LLM Providers](docs/api/LLM_PROVIDERS_IMPLEMENTATION.md) - Provider details
-
----
-
-## 📊 Development Status
-
-### ✅ Completed (All Phases)
-- [x] PostgreSQL 18 with 9 optimized tables
-- [x] Security layer (JWT, encryption, hashing)
-- [x] Pydantic schemas for validation
-- [x] LangChain multi-agent workflow
-- [x] 25+ specialized tax tools
-- [x] Vue frontend with adaptive UI
-- [x] FastAPI CRUD operations
-- [x] API routers and middleware
-- [x] AutoGen agent implementation
-- [x] Vector database (RAG)
-- [x] Document OCR
-- [x] E-filing integration
-- [x] Final System Integration
-
----
-
-## 🤝 Contributing
-
-Contributions welcome! Educational/research project.
-
-1. Create feature branch
-2. Make changes
-3. Test thoroughly
-4. Submit pull request
-
-**Code Style**: PEP 8 (backend), Vue 3 Composition API (frontend)
-
----
-
-## 📄 License
-
-Educational purposes. See LICENSE file.
-
----
-
-
-
-
-
----
-
-<div align="center">
-
-**Built with ❤️ for automating tax filing**
-
-⭐ Star this repo if you find it helpful!
-
-</div>
+*Educational project for Indian tax filing automation.*

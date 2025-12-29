@@ -1,0 +1,36 @@
+# Cursor Rules for Automated Tax Filing Agent
+
+## Tech Stack Rules
+
+### ALWAYS USE
+- PostgreSQL with pgvector for vector storage
+- FastAPI for backend API
+- SQLAlchemy 2.0 async for database access
+- Vue 3 + TypeScript for frontend
+- AutoGen for AI agent orchestration
+- sentence-transformers for embeddings
+
+### NEVER USE (without explicit approval)
+- ChromaDB, Pinecone, Milvus, Weaviate, Qdrant (use pgvector)
+- Django, Flask (use FastAPI)
+- React, Angular (use Vue 3)
+- LangChain for agents (use AutoGen)
+- MongoDB (use PostgreSQL)
+
+## Before Adding Dependencies
+1. Ask user for approval
+2. Check if approved stack already provides the functionality
+3. Document reasoning in commit message
+
+## Code Patterns
+- Use async/await for all DB operations
+- Use Pydantic for validation
+- Create Alembic migrations for schema changes
+- Never hardcode credentials
+
+## Vector Operations
+All embeddings and similarity search MUST use:
+- PostgreSQL pgvector extension
+- `vector(384)` type for MiniLM embeddings
+- HNSW index for similarity search
+- Cosine distance operator `<=>`
