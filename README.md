@@ -6,37 +6,6 @@ An intelligent, autonomous AI agent system for tax filing built with **Vue 3**, 
 
 
 
-> **Status**: 🚧 Active Development | **Version**: 1.0.0-beta**URL**: https://lovable.dev/projects/342d33b1-7401-43c5-83ce-887fada4e7b0
-
-
-
----## How can I edit this code?
-
-
-
-## 📋 Table of ContentsThere are several ways of editing your application.
-
-
-
-- [Overview](#overview)**Use Lovable**
-
-- [Features](#features)
-
-- [Tech Stack](#tech-stack)Simply visit the [Lovable Project](https://lovable.dev/projects/342d33b1-7401-43c5-83ce-887fada4e7b0) and start prompting.
-
-- [Quick Start](#quick-start)
-
-- [Project Structure](#project-structure)Changes made via Lovable will be committed automatically to this repo.
-
-- [Documentation](#documentation)
-
-- [Development Status](#development-status)**Use your preferred IDE**
-
-
-
----If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-
 
 ## 🎯 OverviewThe only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
